@@ -76,11 +76,7 @@ with open(out_path, "r", encoding="utf-8", errors="replace") as source, open(str
 PY
 TAIL_PID=$!
 
-if command -v script >/dev/null 2>&1; then
-  script -q "$TMP_OUT" /bin/bash -lc "/Users/jelvin/.nvm/versions/node/v22.16.0/bin/codex exec --full-auto \"$PROMPT_ESCAPED\"" || EXIT_CODE=$?
-else
-  "/Users/jelvin/.nvm/versions/node/v22.16.0/bin/codex" exec --full-auto "$PROMPT_RAW" >"$TMP_OUT" 2>&1 || EXIT_CODE=$?
-fi
+"/Users/jelvin/.nvm/versions/node/v22.16.0/bin/codex" exec --full-auto "$PROMPT_RAW" >"$TMP_OUT" 2>&1 || EXIT_CODE=$?
 
 kill "$TAIL_PID" >/dev/null 2>&1 || true
 
