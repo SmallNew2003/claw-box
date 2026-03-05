@@ -1,6 +1,6 @@
-# 政务大模型应用服务平台 - 项目上下文
+# Claw Box - 项目上下文
 
-<!-- 规范版本: v1.0.0 -->
+<!-- 规范版本: v2.0.0 -->
 <!-- 最后更新: 2026-03-05 -->
 <!-- 维护者: 开发团队 -->
 
@@ -36,207 +36,117 @@
 
 ## Purpose
 
-政务大模型应用服务平台定位为**资源调度与运营中台**，负责统一管理、审批与调度算力、模型、知识库、智能体等资源。
+Claw Box 是面向 OpenClaw 的桌面控制台应用，提供多会话、模型、任务、技能、MCP、Agent Teams 与项目管理的一体化操作界面。
 
 **核心目标**：
-- 规范政务大模型资源的申请和使用流程
-- 提升资源利用效率，避免重复建设
-- 保障数据安全和合规性
-- 支持跨部门资源共享与复用
+- 提供稳定、可扩展的多会话与模型切换体验
+- 统一管理定时任务、技能与 MCP 连接
+- 展示 Agent Teams 运行态并支持协作管理
+- 支持项目级上下文与配置
+- 保留桌面端高效交互，后续可扩展到 Web/Windows/移动端
 
 **系统定位**：
-- 不实现具体 AI 能力（不做模型训练、推理）
-- 通过对接 MB、AB、百舸、数据中枢等外部系统实现资源调度
-- 提供统一的申请、审批、管理入口
+- 不直接承载模型推理，作为 OpenClaw 的控制层
+- 通过本地 Gateway/API 读取状态与下发指令
+- 以桌面应用优先，保留跨平台移植能力
 
 ## Tech Stack
 
-### 前端
-- Vue 3 + TypeScript + Vite
-- Element Plus（UI 组件库）
-- Vue Router（路由管理）
-- Pinia（状态管理）
+### 桌面端
+- Electron + TypeScript
+- React 18 + Vite
+- 轻量状态管理（Zustand 或 React Context）
 
-### 后端（外部系统）
-- MB 模型服务平台（模型调用）
-- AB 智能体开发平台（智能体开发）
-- 百舸算力平台（算力调度）
-- 数据中枢（数据权限）
-- QAX 安全检测平台（安全预警）
+### Web/跨端（规划）
+- React 18 + Vite
+- 统一 UI 组件库与状态管理
 
 ### 工程
-- 统一前端基座：`bj-gover-llm-admin`
-- 构建工具：Vite
-- 认证：统一入口登录态校验，支持多角色选择
+- Electron 主进程 + 渲染进程 + Preload 安全隔离
+- 本地配置存储（JSON/SQLite/IndexedDB 组合）
+- IPC 统一桥接 OpenClaw 能力
 
 ## Project Conventions
 
 ### Code Style
 - 使用 TypeScript 严格模式
-- 组件命名：PascalCase（如 `ResourceCard.vue`）
-- 文件命名：kebab-case（如 `resource-card.vue`）
-- 提交格式：`feat(模块): 中文内容`（如 `feat(资源管理): 添加资源申请功能`）
+- 组件命名：PascalCase（如 `SessionList.tsx`）
+- 文件命名：kebab-case（如 `session-list.tsx`）
+- 提交格式：`feat(模块): 中文内容`
 - 禁止使用 emoji
-
-### 后端开发规范
-
-**数据访问层（MyBatis-Flex）**：
-- ✅ **禁止使用 Mapper XML 文件**：XML 难以维护，字段变更需要同步修改多处
-- ✅ **使用 QueryWrapper API**：类型安全、自动同步、易于重构
-- ✅ **简单查询**：使用 `BaseMapper` 自动生成的 CRUD 方法
-- ✅ **复杂查询**：在 Service 层使用 QueryWrapper 构建动态 SQL
-- ✅ **特殊 SQL**：使用 `@Select`、`@Insert`、`@Update`、`@Delete` 注解直接写在 Mapper 接口上
-
-**QueryWrapper 示例**：
-```java
-// 动态条件查询
-QueryWrapper query = QueryWrapper.create()
-    .select()
-    .from(SYS_USER)
-    .where(SYS_USER.DEL_FLAG.eq("F"))
-    .and(SYS_USER.NICKNAME.like(dto.getNickname()).when(dto.getNickname() != null))
-    .and(SYS_USER.DEPT_ID.eq(dto.getDeptId()).when(dto.getDeptId() != null))
-    .orderBy(SYS_USER.CREATE_TIME.desc());
-
-List<SysUserEntity> users = userMapper.selectListByQuery(query);
-```
-
-**优势**：
-- 编译期类型检查，字段名错误立即发现
-- 实体类字段变更，代码自动适配
-- IDE 重构支持，所有引用自动更新
-- SQL 逻辑和业务逻辑在同一文件，易于维护
-- 动态 SQL 构建更简洁，无需 XML `<if>` 标签
 
 ### Architecture Patterns
 
-**领域驱动设计（DDD）**：
-- 限界上下文：用户与权限域、审批流程域、资源管理域、审计与合规域、通知与告警域、运营分析域
-- 聚合设计：通过聚合根管理实体生命周期
-- 领域事件：事件驱动实现领域间松耦合
-
-**统一入口、角色分域**：
-- A 端（业务服务门户）：委办局业务人员、应用开发商
-- B 端（运营管理后台）：大数据中心、运营团队
-- 登录后根据角色权限展示不同菜单和功能
-
-**前后端分离**：
-- 前端 SPA，后端 RESTful API
-- 前端负责路由、状态管理、UI 渲染
-- 后端负责业务逻辑、数据持久化、外部系统集成
+- 主进程负责系统集成与数据持久化
+- 渲染进程负责 UI、状态管理与用户交互
+- IPC 统一封装为服务层，避免渲染进程直接访问系统资源
+- 采用模块化能力包：会话、模型、任务、技能、MCP、Teams、项目
 
 ### Testing Strategy
-- 单元测试：核心业务逻辑
-- 集成测试：外部系统对接
-- E2E 测试：关键用户流程
+- 单元测试：核心业务逻辑与状态流
+- 集成测试：IPC 与本地存储
+- E2E 测试：关键操作流程（会话创建、模型切换、任务调度）
 
 ### Git Workflow
 - 主分支：`main`
 - 功能分支：`feature/<change-id>`
-- 提交前运行测试和 lint
+- 提交前运行 lint（如有）
 - 使用 OpenSpec 管理变更提案
 
 ## Domain Context
 
-### 用户角色
+### 关键角色
 
-**A 端用户（业务服务门户）**：
-- 委办局业务人员：申请场景和资源、开发智能体
-- 应用开发商：基于平台资源开发应用
-
-**B 端用户（运营管理后台）**：
-- 一级管理员（大数据中心）：全局监管、最终审批
-- 二级管理员（市级/区级）：本部门/区域审批
-- 三级管理员（区级委办局）：本部门初审
-- 运营服务团队：需求评估、资源配置、系统对接
+- **桌面用户**：需要同时管理多个会话与模型
+- **系统管理员**：管理全局模型与技能配置
+- **协作者**：关注 Agent Teams 状态与任务协同
 
 ### 核心领域
 
-**用户与权限域**：
-- 用户管理、角色分配、权限策略、组织架构
-- 核心聚合根：User、Role、Organization
-
-**审批流程域**：
-- 工单管理、审批链、状态机、审批记录
-- 核心聚合根：ApprovalWorkflow、ApprovalTask
-
-**资源管理域**：
-- 算力、模型、知识库、智能体的生命周期管理
-- 核心聚合根：ComputeResource、Model、KnowledgeBase、Agent
-
-**审计与合规域**：
-- 操作日志、审计追踪、合规检查
-- 核心聚合根：AuditLog、ComplianceRecord
-
-**通知与告警域**：
-- 消息推送、预警管理、通知模板
-- 核心聚合根：Notification、Alert
-
-**运营分析域**：
-- 数据统计、运营大屏、报表生成
-- 核心聚合根：OperationMetrics、Dashboard
+- **会话管理域**：会话生命周期、上下文与消息
+- **模型管理域**：模型配置、切换与状态
+- **任务调度域**：定时任务与执行历史
+- **技能与 MCP 域**：技能安装、配置与 MCP 连接
+- **Agent Teams 域**：团队编排与运行状态
+- **项目管理域**：项目配置与上下文收敛
+- **市场域**：技能市场与更新管理
 
 ### 职责边界
 
 **我们负责**：
-- ✅ 资源的元数据管理
-- ✅ 资源的上下架控制
-- ✅ 资源状态展示
-- ✅ 资源绑定关系管理
-- ✅ 申请审批流程
-- ✅ 权限控制与数据隔离
+- ✅ 多会话管理与状态展示
+- ✅ 模型切换与配置管理
+- ✅ 定时任务创建与监控
+- ✅ 技能与 MCP 配置管理
+- ✅ Agent Teams 状态可视化
+- ✅ 项目上下文管理
 
 **我们不负责**：
-- ❌ 算力的实际调度和分配（百舸负责）
-- ❌ 模型训练和推理（MB 负责）
-- ❌ 智能体的实际开发和调试（AB 负责）
-- ❌ 知识库文档的上传、解析、向量化（外部知识库系统负责）
-
-**例外：自建通用智能问答助手**：
-- ✅ 我们负责完整实现（文档上传、解析、向量化、检索、对话）
+- ❌ 模型推理与训练
+- ❌ OpenClaw 以外的业务系统集成
 
 ## Important Constraints
 
 ### 业务约束
-- 政务合规要求：所有操作需可追溯、可审计
-- 数据隔离：不同组织的数据严格隔离
-- 审批流程：关键操作需经过多级审批
+- 所有关键操作可追溯
+- 本地配置需可导出与迁移
 
 ### 技术约束
-- 前端统一使用 Vue 3 + TypeScript
-- 不实现具体 AI 能力，通过外部系统集成
-- 需支持多角色、多组织的权限管理
+- Electron 安全隔离（禁用 NodeIntegration）
+- IPC 仅暴露白名单能力
+- 默认本地数据落盘，支持后续云同步扩展
 
 ### 安全约束
-- 所有 API 调用需认证和鉴权
-- 敏感数据需加密存储
-- 操作日志需完整记录
+- API Token 加密存储
+- 敏感数据不出本机
+- 变更日志可审计
 
 ## External Dependencies
 
-### MB 模型服务平台
-- 功能：模型调用、模型 ID 映射、调用统计
-- 集成方式：RESTful API
-
-### AB 智能体开发平台
-- 功能：SSO 跳转、Project ID 管理、开发进度回写
-- 集成方式：SSO + RESTful API
-
-### 百舸算力平台
-- 功能：算力资源调度、使用情况同步
-- 集成方式：RESTful API
-
-### 数据中枢
-- 功能：数据权限配置、数据访问管理
-- 集成方式：RESTful API
-
-### QAX 安全检测平台
-- 功能：安全预警、内容检测
-- 集成方式：RESTful API
+- OpenClaw Gateway API（本地或内网部署）
+- 可选：技能市场服务（后续接入）
 
 ## Reference Documents
 
-详细设计文档：
-- 完整架构设计：`docs/2026-02-28-system-architecture-design.md`（944 行，包含详细的模块设计、数据模型、接口规范）
-- 产品设计：`docs/2026-02-01-product-design.md`
-- 会议纪要：`docs/AI平台资源申请与管理全流程重构会议纪要.md`
+- 产品规格：`docs/product-spec.md`
+- 架构设计：`docs/architecture.md`
