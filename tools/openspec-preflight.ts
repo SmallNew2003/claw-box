@@ -62,6 +62,8 @@ function resolveChangeId(files: string[]): string {
   if (ids.length > 1) {
     throw new Error(`检测到多个 change-id: ${ids.join(", ")}，请使用 --change-id 指定。`);
   }
+  const latest = findLatestChangeId();
+  if (latest) return latest;
   throw new Error("未检测到 change-id，请使用 --change-id 指定。");
 }
 
@@ -76,6 +78,25 @@ function findSpecFiles(specsDir: string): string[] {
     }
   }
   return specFiles;
+}
+
+function findLatestChangeId(): string | null {
+  const baseDir = path.join("openspec", "changes");
+  if (!fs.existsSync(baseDir)) return null;
+  const entries = fs.readdirSync(baseDir, { withFileTypes: true });
+  let latestId: string | null = null;
+  let latestTime = 0;
+  for (const entry of entries) {
+    if (!entry.isDirectory()) continue;
+    const proposalPath = path.join(baseDir, entry.name, "proposal.md");
+    if (!fs.existsSync(proposalPath)) continue;
+    const stat = fs.statSync(proposalPath);
+    if (stat.mtimeMs > latestTime) {
+      latestTime = stat.mtimeMs;
+      latestId = entry.name;
+    }
+  }
+  return latestId;
 }
 
 function printDryRunSummary(): void {
