@@ -1,0 +1,12 @@
+## 1. Implementation
+- [ ] 1.1 初始化 Core Service 工程骨架与 /health
+- [ ] 1.2 建立 SQLite 存储与基础迁移
+- [ ] 1.3 定义 Teams/Runs/Memory/Skills/MCP 的领域模型
+- [ ] 1.4 提供 Teams 与 Runs 基础 API
+- [ ] 1.5 提供 Memory 写入与检索 API
+- [ ] 1.6 提供 Skills 与 MCP 管理 API
+- [ ] 1.7 提供事件流（SSE）与运行日志推送
+- [ ] 1.8 初始化 Web 控制台脚手架
+- [ ] 1.9 初始化 Tauri 桌面壳并对接 Web UI
+- [ ] 1.10 增加 OpenClaw 配置兼容适配层
+- [ ] 1.11 完成 MVP 文档与运行说明
