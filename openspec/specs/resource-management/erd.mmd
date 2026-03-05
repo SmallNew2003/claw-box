@@ -1,0 +1,150 @@
+erDiagram
+    DATA_CENTER_机房 ||--o{ COMPUTE_RESOURCE_算力资源 : 一对多_部署
+    COMPUTE_TYPE_算力类型 ||--o{ COMPUTE_RESOURCE_算力资源 : 一对多_类型
+    MODEL_TYPE_模型类型 ||--o{ MODEL_模型 : 一对多_类型
+    KNOWLEDGE_CATEGORY_知识库类别 ||--o{ KNOWLEDGE_BASE_知识库 : 一对多_分类
+    MODEL_模型 ||--o{ AGENT_MODEL_BINDING_智能体模型绑定 : 一对多_绑定
+    AGENT_智能体 ||--o{ AGENT_MODEL_BINDING_智能体模型绑定 : 一对多_绑定
+    KNOWLEDGE_BASE_知识库 ||--o{ AGENT_KNOWLEDGE_BINDING_智能体知识库绑定 : 一对多_绑定
+    AGENT_智能体 ||--o{ AGENT_KNOWLEDGE_BINDING_智能体知识库绑定 : 一对多_绑定
+
+    DATA_CENTER_机房 {
+        bigint id_主键 PK
+        varchar name_机房名称
+        varchar code_机房编码 UK
+        varchar location_位置
+        varchar status_code_状态
+        bigint created_by_创建人
+        bigint updated_by_更新人
+        timestamp create_time_创建时间
+        timestamp update_time_更新时间
+    }
+
+    COMPUTE_TYPE_算力类型 {
+        bigint id_主键 PK
+        varchar name_类型名称
+        varchar code_类型编码 UK
+        text description_类型描述
+        bigint created_by_创建人
+        bigint updated_by_更新人
+        timestamp create_time_创建时间
+        timestamp update_time_更新时间
+    }
+
+    COMPUTE_RESOURCE_算力资源 {
+        bigint id_主键 PK
+        varchar resource_name_资源名称
+        varchar resource_code_资源编码 UK
+        varchar baige_resource_id_百舸资源ID
+        varchar resource_spec_资源规格
+        numeric quota_资源配额
+        numeric used_quota_已使用配额
+        varchar status_code_状态
+        bigint compute_type_id_算力类型ID FK
+        bigint data_center_id_所属机房ID FK
+        bigint created_by_创建人
+        bigint updated_by_更新人
+        timestamp create_time_创建时间
+        timestamp update_time_更新时间
+    }
+
+    MODEL_TYPE_模型类型 {
+        bigint id_主键 PK
+        varchar type_name_类型名称
+        varchar type_code_类型编码 UK
+        text description_类型描述
+        bigint created_by_创建人
+        bigint updated_by_更新人
+        timestamp create_time_创建时间
+        timestamp update_time_更新时间
+    }
+
+    MODEL_模型 {
+        bigint id_主键 PK
+        varchar model_name_模型名称
+        varchar model_code_模型编码 UK
+        bigint model_type_id_模型类型ID FK
+        varchar version_版本
+        varchar accuracy_精度
+        varchar mb_model_id_MB平台模型ID
+        text description_模型描述
+        varchar status_code_状态
+        bigint call_count_调用次数
+        bigint created_by_创建人
+        bigint updated_by_更新人
+        timestamp create_time_创建时间
+        timestamp update_time_更新时间
+    }
+
+    KNOWLEDGE_CATEGORY_知识库类别 {
+        bigint id_主键 PK
+        varchar name_类别名称
+        varchar code_类别编码 UK
+        text description_类别描述
+        bigint created_by_创建人
+        bigint updated_by_更新人
+        timestamp create_time_创建时间
+        timestamp update_time_更新时间
+    }
+
+    KNOWLEDGE_BASE_知识库 {
+        bigint id_主键 PK
+        varchar kb_name_知识库名称
+        varchar kb_code_知识库编码 UK
+        text description_知识库描述
+        int file_count_文档数量
+        varchar status_code_状态
+        bigint category_id_分类ID FK
+        boolean vectorized_是否向量化
+        varchar permission_code_权限范围
+        numeric size_mb_大小MB
+        varchar update_frequency_code_更新频率
+        bigint created_by_创建人
+        bigint updated_by_更新人
+        timestamp create_time_创建时间
+        timestamp update_time_更新时间
+    }
+
+    AGENT_智能体 {
+        bigint id_主键 PK
+        varchar agent_name_智能体名称
+        varchar agent_code_智能体编码 UK
+        varchar agent_type_code_智能体类型
+        varchar ab_project_id_AB平台项目ID
+        varchar status_code_状态
+        bigint call_count_调用次数
+        varchar permission_code_权限范围
+        bigint created_by_创建人
+        bigint updated_by_更新人
+        timestamp create_time_创建时间
+        timestamp update_time_更新时间
+    }
+
+    AGENT_MODEL_BINDING_智能体模型绑定 {
+        bigint id_主键 PK
+        bigint agent_id_智能体ID FK
+        bigint model_id_模型ID FK
+        varchar binding_type_code_绑定类型
+        int priority_优先级
+        varchar status_code_状态
+        text config_json_配置JSON
+        bigint created_by_创建人
+        bigint updated_by_更新人
+        timestamp create_time_创建时间
+        timestamp update_time_更新时间
+    }
+
+    AGENT_KNOWLEDGE_BINDING_智能体知识库绑定 {
+        bigint id_主键 PK
+        bigint agent_id_智能体ID FK
+        bigint kb_id_知识库ID FK
+        varchar binding_type_code_绑定类型
+        int priority_优先级
+        int weight_权重
+        varchar status_code_状态
+        text config_json_配置JSON
+        bigint created_by_创建人
+        bigint updated_by_更新人
+        timestamp create_time_创建时间
+        timestamp update_time_更新时间
+    }

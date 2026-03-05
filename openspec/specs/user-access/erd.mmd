@@ -1,0 +1,89 @@
+erDiagram
+    SYS_ORGANIZATION_组织 ||--o{ SYS_USER_用户 : 一对多_所属
+    SYS_USER_用户 ||--o{ SYS_USER_ROLE_用户角色 : 一对多_分配
+    SYS_ROLE_角色 ||--o{ SYS_USER_ROLE_用户角色 : 一对多_包含
+    SYS_ROLE_角色 ||--o{ SYS_ROLE_PERMISSION_角色权限 : 一对多_包含
+    SYS_PERMISSION_权限 ||--o{ SYS_ROLE_PERMISSION_角色权限 : 一对多_授予
+    SYS_USER_用户 ||--o{ SYS_USER_THIRD_CREDENTIAL_第三方凭证 : 一对多_绑定
+
+    SYS_ORGANIZATION_组织 {
+        bigint id_主键 PK
+        varchar org_name_组织名称
+        varchar org_code_组织编码 UK
+        bigint parent_id_父组织ID FK
+        int org_level_组织层级
+        varchar contact_person_联系人
+        varchar contact_phone_联系电话
+        bigint created_by_创建人
+        bigint updated_by_更新人
+        timestamp create_time_创建时间
+        timestamp update_time_更新时间
+    }
+
+    SYS_USER_用户 {
+        bigint id_主键 PK
+        varchar username_登录账号 UK
+        varchar password_密码
+        varchar name_姓名
+        bigint org_id_所属组织ID FK
+        varchar phone_联系电话
+        varchar email_邮箱
+        boolean is_active_启用状态
+        bigint created_by_创建人
+        bigint updated_by_更新人
+        timestamp create_time_创建时间
+        timestamp update_time_更新时间
+        timestamp last_login_time_最后登录时间
+    }
+
+    SYS_ROLE_角色 {
+        bigint id_主键 PK
+        varchar role_name_角色名称
+        varchar role_code_角色编码 UK
+        text description_角色描述
+        boolean is_deleted_删除状态
+        bigint created_by_创建人
+        bigint updated_by_更新人
+        timestamp create_time_创建时间
+        timestamp update_time_更新时间
+    }
+
+    SYS_PERMISSION_权限 {
+        bigint id_主键 PK
+        varchar perm_name_权限名称
+        varchar perm_code_权限编码 UK
+        bigint menu_id_菜单ID FK
+        varchar perm_type_code_权限类型
+        bigint created_by_创建人
+        bigint updated_by_更新人
+        timestamp create_time_创建时间
+        timestamp update_time_更新时间
+    }
+
+    SYS_USER_ROLE_用户角色 {
+        bigint user_id_用户ID PK_FK
+        bigint role_id_角色ID PK_FK
+        timestamp create_time_创建时间
+    }
+
+    SYS_ROLE_PERMISSION_角色权限 {
+        bigint role_id_角色ID PK_FK
+        bigint permission_id_权限ID PK_FK
+        timestamp create_time_创建时间
+    }
+
+    SYS_USER_THIRD_CREDENTIAL_第三方凭证 {
+        bigint id_主键 PK
+        bigint user_id_用户ID FK
+        varchar provider_code_平台编码
+        varchar credential_type_code_凭证类型
+        varchar access_key_访问Key
+        varchar secret_ciphertext_密钥密文
+        varchar status_code_状态
+        bigint created_by_创建人
+        bigint updated_by_更新人
+        timestamp create_time_创建时间
+        timestamp update_time_更新时间
+        timestamp expires_at_过期时间
+        timestamp last_used_at_最后使用时间
+    }

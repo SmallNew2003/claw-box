@@ -1,0 +1,258 @@
+erDiagram
+    SYSTEM_CATALOG_系统目录 ||--o{ RESOURCE_APPLICATION_资源申请 : 一对多_申请
+    DEMAND_CATEGORY_需求分类 ||--o{ DEMAND_DIRECTORY_需求目录 : 一对多_归类
+    DEMAND_CATEGORY_需求分类 ||--o{ RESOURCE_APPLICATION_资源申请 : 一对多_场景分类
+    DEMAND_DIRECTORY_需求目录 ||--o{ RESOURCE_APPLICATION_资源申请 : 一对多_场景目录
+    RESOURCE_APPLICATION_资源申请 ||--o{ RESOURCE_ATTACHMENT_附件证明 : 一对多_附件
+    RESOURCE_APPLICATION_资源申请 ||--o{ MODEL_APPLICATION_模型申请 : 一对多_模型申请
+    RESOURCE_APPLICATION_资源申请 ||--o{ KNOWLEDGE_APPLICATION_知识库申请 : 一对多_知识库申请
+    RESOURCE_APPLICATION_资源申请 ||--o{ AGENT_APPLICATION_智能体申请 : 一对多_智能体申请
+    RESOURCE_APPLICATION_资源申请 ||--o{ AGENT_REGISTRATION_第三方智能体注册 : 一对多_第三方注册
+    RESOURCE_APPLICATION_资源申请 ||--o{ RESOURCE_BINDING_资源绑定 : 一对多_绑定
+    RESOURCE_APPLICATION_资源申请 ||--o{ APPROVAL_HISTORY_审批历史 : 一对多_审批
+    MODEL_模型 ||--o{ MODEL_APPLICATION_模型申请 : 一对多_申请
+    MODEL_模型 ||--o{ RESOURCE_BINDING_资源绑定 : 一对多_绑定
+    MODEL_TYPE_模型类型 ||--o{ AGENT_APPLICATION_智能体申请 : 一对多_模型类型
+    KNOWLEDGE_BASE_知识库 ||--o{ KNOWLEDGE_APPLICATION_知识库申请 : 一对多_申请
+    KNOWLEDGE_BASE_知识库 ||--o{ RESOURCE_BINDING_资源绑定 : 一对多_绑定
+    AGENT_智能体 ||--o{ AGENT_APPLICATION_智能体申请 : 一对多_申请
+    AGENT_智能体 ||--o{ AGENT_REGISTRATION_第三方智能体注册 : 一对多_关联
+    AGENT_智能体 ||--o{ RESOURCE_BINDING_资源绑定 : 一对多_绑定
+    AGENT_APPLICATION_智能体申请 ||--o{ AGENT_APP_COMPONENT_智能体申请组件 : 一对多_组件
+    AGENT_APPLICATION_智能体申请 ||--o{ AGENT_APP_KNOWLEDGE_智能体申请知识 : 一对多_知识
+    SYS_USER_用户 ||--o{ APPROVAL_HISTORY_审批历史 : 一对多_审批人
+    FLW_TASK_任务 ||--o{ APPROVAL_HISTORY_审批历史 : 一对多_任务
+
+    SYSTEM_CATALOG_系统目录 {
+        bigint id_主键 PK
+        varchar system_name_系统名称
+        varchar system_code_系统编码 UK
+        varchar description_系统描述
+        varchar status_code_状态
+        bigint created_by_创建人
+        bigint updated_by_更新人
+        timestamp create_time_创建时间
+        timestamp update_time_更新时间
+    }
+
+    DEMAND_CATEGORY_需求分类 {
+        bigint id_主键 PK
+        varchar category_name_分类名称
+        varchar category_code_分类编码 UK
+        varchar description_分类描述
+        varchar status_code_状态
+        bigint created_by_创建人
+        bigint updated_by_更新人
+        timestamp create_time_创建时间
+        timestamp update_time_更新时间
+    }
+
+    DEMAND_DIRECTORY_需求目录 {
+        bigint id_主键 PK
+        varchar directory_name_目录名称
+        varchar directory_code_目录编码 UK
+        varchar description_目录描述
+        bigint demand_category_id_需求分类ID FK
+        varchar status_code_状态
+        bigint created_by_创建人
+        bigint updated_by_更新人
+        timestamp create_time_创建时间
+        timestamp update_time_更新时间
+    }
+
+    RESOURCE_APPLICATION_资源申请 {
+        bigint id_主键 PK
+        varchar app_code_申请单编码 UK
+        bigint system_catalog_id_系统目录ID FK
+        bigint demand_category_id_需求分类ID FK
+        bigint demand_directory_id_需求目录ID FK
+        bigint apply_user_id_申请人ID FK
+        bigint apply_org_id_申请组织ID FK
+        text apply_desc_申请描述
+        varchar env_type_code_环境类型
+        int estimated_period_days_预计周期天
+        varchar status_code_申请状态
+        varchar process_instance_id_流程实例ID
+        varchar process_definition_key_流程定义Key
+        varchar process_status_code_流程状态
+        bigint created_by_创建人
+        bigint updated_by_更新人
+        timestamp create_time_创建时间
+        timestamp update_time_更新时间
+    }
+
+    RESOURCE_ATTACHMENT_附件证明 {
+        bigint id_主键 PK
+        bigint app_id_申请单ID FK
+        varchar storage_path_存储路径
+        varchar file_type_code_文件类型
+        bigint size_bytes_文件大小字节
+        varchar name_文件名称
+        bigint uploaded_by_上传人
+        timestamp create_time_创建时间
+    }
+
+    MODEL_APPLICATION_模型申请 {
+        bigint id_主键 PK
+        bigint app_id_申请单ID FK
+        bigint model_id_模型ID FK
+        varchar rate_limit_type_code_限流方式
+        int qps_require_QPS需求
+        int tpm_require_TPM需求
+        int user_count_require_用户量需求
+        varchar apply_mode_code_申请模式
+        text compute_requirement_desc_算力需求描述
+        int call_limit_调用限制
+        timestamp create_time_创建时间
+    }
+
+    KNOWLEDGE_APPLICATION_知识库申请 {
+        bigint id_主键 PK
+        bigint app_id_申请单ID FK
+        bigint kb_id_知识库ID FK
+        varchar kb_name_知识库名称
+        varchar apply_type_code_知识库类型
+        varchar vector_db_type_code_向量库类型
+        numeric storage_requirement_gb_存储需求GB
+        numeric estimated_data_size_gb_预估数据量GB
+        boolean vectorization_required_需要向量化
+        varchar data_source_数据来源
+        timestamp create_time_创建时间
+    }
+
+    AGENT_APPLICATION_智能体申请 {
+        bigint id_主键 PK
+        bigint app_id_申请单ID FK
+        bigint agent_id_智能体ID FK
+        varchar agent_type_code_智能体类型
+        text functional_requirements_功能需求
+        bigint model_type_id_模型类型ID FK
+        int max_thoughts_最大思考次数
+        int reference_dialog_rounds_参考对话轮数
+        boolean memory_enabled_启用记忆
+        varchar memory_variable_记忆变量
+        varchar memory_table_记忆表
+        varchar memory_fragment_记忆片段
+        int use_limit_使用限制
+        timestamp create_time_创建时间
+    }
+
+    AGENT_REGISTRATION_第三方智能体注册 {
+        bigint id_主键 PK
+        bigint agent_id_智能体ID FK
+        bigint app_id_申请单ID FK
+        varchar platform_code_平台编码
+        varchar ab_project_id_AB平台项目ID
+        varchar external_agent_id_外部智能体ID
+        varchar agent_name_智能体名称
+        varchar endpoint_url_接口地址
+        varchar protocol_type_code_协议类型
+        varchar auth_type_code_鉴权方式
+        varchar api_key_APIKey
+        varchar app_id_外部AppID
+        text request_format_json_请求格式JSON
+        text response_format_json_响应格式JSON
+        text business_desc_业务描述
+        text attachments_json_证明材料JSON
+        varchar status_code_注册状态
+        varchar sync_status_code_同步状态
+        bigint created_by_创建人
+        bigint updated_by_更新人
+        timestamp create_time_创建时间
+        timestamp update_time_更新时间
+        timestamp last_sync_at_最后同步时间
+    }
+
+    AGENT_APP_COMPONENT_智能体申请组件 {
+        bigint id_主键 PK
+        bigint agent_application_id_智能体申请ID FK
+        varchar related_key_关联Key
+        varchar source_code_来源
+        text description_描述
+        varchar name_名称
+        timestamp create_time_创建时间
+    }
+
+    AGENT_APP_KNOWLEDGE_智能体申请知识 {
+        bigint id_主键 PK
+        bigint agent_application_id_智能体申请ID FK
+        varchar related_key_关联Key
+        varchar knowledge_type_code_知识类型
+        text description_描述
+        varchar name_名称
+        timestamp create_time_创建时间
+    }
+
+    RESOURCE_BINDING_资源绑定 {
+        bigint id_主键 PK
+        bigint app_id_申请单ID FK
+        varchar resource_type_code_资源类型
+        bigint resource_id_资源ID
+        varchar external_resource_id_外部资源ID
+        varchar binding_status_code_绑定状态
+        timestamp bound_at_绑定时间
+        timestamp expires_at_到期时间
+        timestamp unbound_at_解绑时间
+        bigint bound_by_绑定人 FK
+        text binding_config_json_绑定配置JSON
+        text remark_备注
+        bigint created_by_创建人
+        bigint updated_by_更新人
+        timestamp create_time_创建时间
+        timestamp update_time_更新时间
+    }
+
+    APPROVAL_HISTORY_审批历史 {
+        bigint id_主键 PK
+        bigint app_id_申请单ID FK
+        bigint task_id_任务ID FK
+        varchar task_name_任务名称
+        bigint approver_id_审批人ID FK
+        varchar approver_name_审批人姓名
+        varchar decision_code_审批决策
+        text comment_审批意见
+        text attachment_json_附件JSON
+        timestamp decision_time_决策时间
+        varchar ip_address_IP地址
+        boolean is_revoked_是否已撤回
+        bigint revoked_by_撤回人ID FK
+        timestamp revoked_at_撤回时间
+        text revoke_reason_撤回原因
+        bigint created_by_创建人
+        timestamp create_time_创建时间
+    }
+
+    MODEL_模型 {
+        bigint id_主键 PK
+        varchar model_name_模型名称
+        varchar model_code_模型编码 UK
+    }
+
+    MODEL_TYPE_模型类型 {
+        bigint id_主键 PK
+        varchar type_name_类型名称
+        varchar type_code_类型编码 UK
+    }
+
+    KNOWLEDGE_BASE_知识库 {
+        bigint id_主键 PK
+        varchar kb_name_知识库名称
+        varchar kb_code_知识库编码 UK
+    }
+
+    AGENT_智能体 {
+        bigint id_主键 PK
+        varchar agent_name_智能体名称
+        varchar agent_code_智能体编码 UK
+    }
+
+    SYS_USER_用户 {
+        bigint id_主键 PK
+        varchar username_登录账号 UK
+        varchar name_姓名
+    }
+
+    FLW_TASK_任务 {
+        bigint id_主键 PK
+        varchar task_name_任务名称
+    }

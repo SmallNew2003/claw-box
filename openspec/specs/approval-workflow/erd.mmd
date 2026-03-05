@@ -1,0 +1,155 @@
+erDiagram
+    FLW_PROCESS_流程定义 ||--o{ FLW_INSTANCE_流程实例 : 一对多_运行
+    FLW_PROCESS_流程定义 ||--o{ FLW_HIS_INSTANCE_历史流程实例 : 一对多_历史
+    FLW_INSTANCE_流程实例 ||--o{ FLW_TASK_任务 : 一对多_任务
+    FLW_HIS_INSTANCE_历史流程实例 ||--o{ FLW_HIS_TASK_历史任务 : 一对多_历史任务
+    FLW_HIS_INSTANCE_历史流程实例 ||--|| FLW_EXT_INSTANCE_扩展流程实例 : 一对一_扩展
+    FLW_TASK_任务 ||--o{ FLW_TASK_ACTOR_任务参与者 : 一对多_参与
+    FLW_HIS_TASK_历史任务 ||--o{ FLW_HIS_TASK_ACTOR_历史任务参与者 : 一对多_参与
+
+    FLW_PROCESS_流程定义 {
+        bigint id_主键 PK
+        varchar tenant_id_租户ID
+        varchar create_id_创建人ID
+        varchar create_by_创建人名称
+        timestamp create_time_创建时间
+        varchar process_key_流程定义Key UK
+        varchar process_name_流程定义名称
+        varchar process_icon_流程图标地址
+        varchar process_type_code_流程类型
+        int process_version_流程版本
+        varchar instance_url_实例地址
+        text remark_备注说明
+        tinyint use_scope_使用范围
+        tinyint process_state_流程状态
+        text model_content_json_流程模型定义JSON
+        int sort_排序
+    }
+
+    FLW_INSTANCE_流程实例 {
+        bigint id_主键 PK
+        varchar tenant_id_租户ID
+        varchar create_id_创建人ID
+        varchar create_by_创建人名称
+        timestamp create_time_创建时间
+        bigint process_id_流程定义ID FK
+        bigint parent_instance_id_父流程实例ID FK
+        tinyint priority_优先级
+        varchar instance_no_流程实例编号
+        varchar business_key_业务KEY
+        text variable_json_变量JSON
+        varchar current_node_name_当前节点名称
+        varchar current_node_key_当前节点Key
+        timestamp expire_time_期望完成时间
+        varchar last_update_by_上次更新人
+        timestamp last_update_time_上次更新时间
+    }
+
+    FLW_TASK_任务 {
+        bigint id_主键 PK
+        varchar tenant_id_租户ID
+        varchar create_id_创建人ID
+        varchar create_by_创建人名称
+        timestamp create_time_创建时间
+        bigint instance_id_流程实例ID FK
+        bigint parent_task_id_父任务ID FK
+        varchar task_name_任务名称
+        varchar task_key_任务Key
+        tinyint task_type_任务类型
+        tinyint perform_type_参与类型
+        varchar action_url_任务处理URL
+        text variable_json_变量JSON
+        varchar assignor_id_委托人ID
+        varchar assignor_委托人
+        timestamp expire_time_任务期望完成时间
+        timestamp remind_time_提醒时间
+        tinyint remind_repeat_提醒次数
+        tinyint viewed_已阅
+    }
+
+    FLW_TASK_ACTOR_任务参与者 {
+        bigint id_主键 PK
+        varchar tenant_id_租户ID
+        bigint instance_id_流程实例ID FK
+        bigint task_id_任务ID FK
+        varchar actor_id_参与者ID
+        varchar actor_name_参与者名称
+        int actor_type_参与者类型
+        int weight_权重
+        varchar agent_id_代理人ID
+        int agent_type_代理人类型
+        text ext_json_扩展JSON
+    }
+
+    FLW_HIS_INSTANCE_历史流程实例 {
+        bigint id_主键 PK
+        varchar tenant_id_租户ID
+        varchar create_id_创建人ID
+        varchar create_by_创建人名称
+        timestamp create_time_创建时间
+        bigint process_id_流程定义ID FK
+        bigint parent_instance_id_父流程实例ID FK
+        tinyint priority_优先级
+        varchar instance_no_流程实例编号
+        varchar business_key_业务KEY
+        text variable_json_变量JSON
+        varchar current_node_name_当前节点名称
+        varchar current_node_key_当前节点Key
+        timestamp expire_time_期望完成时间
+        varchar last_update_by_上次更新人
+        timestamp last_update_time_上次更新时间
+        tinyint instance_state_实例状态
+        timestamp end_time_结束时间
+        bigint duration_ms_处理耗时毫秒
+    }
+
+    FLW_HIS_TASK_历史任务 {
+        bigint id_主键 PK
+        varchar tenant_id_租户ID
+        varchar create_id_创建人ID
+        varchar create_by_创建人名称
+        timestamp create_time_创建时间
+        bigint instance_id_流程实例ID FK
+        bigint parent_task_id_父任务ID FK
+        bigint call_process_id_调用外部流程定义ID FK
+        bigint call_instance_id_调用外部流程实例ID FK
+        varchar task_name_任务名称
+        varchar task_key_任务Key
+        tinyint task_type_任务类型
+        tinyint perform_type_参与类型
+        varchar action_url_任务处理URL
+        text variable_json_变量JSON
+        varchar assignor_id_委托人ID
+        varchar assignor_委托人
+        timestamp expire_time_任务期望完成时间
+        timestamp remind_time_提醒时间
+        tinyint remind_repeat_提醒次数
+        tinyint viewed_已阅
+        timestamp finish_time_任务完成时间
+        tinyint task_state_任务状态
+        bigint duration_ms_处理耗时毫秒
+    }
+
+    FLW_HIS_TASK_ACTOR_历史任务参与者 {
+        bigint id_主键 PK
+        varchar tenant_id_租户ID
+        bigint instance_id_流程实例ID FK
+        bigint task_id_任务ID FK
+        varchar actor_id_参与者ID
+        varchar actor_name_参与者名称
+        int actor_type_参与者类型
+        int weight_权重
+        varchar agent_id_代理人ID
+        int agent_type_代理人类型
+        text ext_json_扩展JSON
+    }
+
+    FLW_EXT_INSTANCE_扩展流程实例 {
+        bigint id_主键 PK
+        bigint his_instance_id_历史实例ID FK
+        varchar tenant_id_租户ID
+        bigint process_id_流程定义ID FK
+        varchar process_name_流程名称
+        varchar process_type_code_流程类型
+        text model_content_json_流程模型定义JSON
+    }

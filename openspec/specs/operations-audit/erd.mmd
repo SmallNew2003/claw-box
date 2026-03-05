@@ -1,0 +1,38 @@
+erDiagram
+    SYS_USER_用户 ||--o{ OPERATION_LOG_操作日志 : 一对多_操作
+    SYS_USER_用户 ||--o{ WARNING_预警 : 一对多_处理
+
+    SYS_USER_用户 {
+        bigint id_主键 PK
+        varchar username_登录账号 UK
+        varchar name_姓名
+    }
+
+    OPERATION_LOG_操作日志 {
+        bigint id_主键 PK
+        bigint operator_id_操作人ID FK
+        varchar operator_name_操作人姓名
+        varchar operation_module_操作模块
+        varchar operation_type_code_操作类型
+        text operation_content_操作内容
+        varchar operation_ip_操作IP
+        timestamp operation_time_操作时间
+        varchar operation_result_code_操作结果
+        text error_msg_错误信息
+        varchar resource_type_code_资源类型
+        bigint resource_id_资源ID
+    }
+
+    WARNING_预警 {
+        bigint id_主键 PK
+        varchar warning_type_code_预警类型
+        int warning_level_预警级别
+        text warning_content_预警内容
+        varchar resource_type_code_资源类型
+        bigint resource_id_资源ID
+        varchar status_code_处理状态
+        timestamp create_time_创建时间
+        bigint handle_user_id_处理人ID FK
+        timestamp handle_time_处理时间
+        text handle_opinion_处理意见
+    }

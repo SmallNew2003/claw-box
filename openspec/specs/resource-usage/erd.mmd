@@ -1,0 +1,34 @@
+erDiagram
+    RESOURCE_BINDING_资源绑定 ||--o{ RESOURCE_USAGE_LOG_资源使用日志 : 一对多_使用
+    SYS_USER_用户 ||--o{ RESOURCE_USAGE_LOG_资源使用日志 : 一对多_使用人
+
+    RESOURCE_BINDING_资源绑定 {
+        bigint id_主键 PK
+        bigint app_id_申请单ID FK
+        varchar resource_type_code_资源类型
+        bigint resource_id_资源ID
+        varchar external_resource_id_外部资源ID
+    }
+
+    SYS_USER_用户 {
+        bigint id_主键 PK
+        varchar username_登录账号 UK
+        varchar name_姓名
+    }
+
+    RESOURCE_USAGE_LOG_资源使用日志 {
+        bigint id_主键 PK
+        bigint binding_id_绑定记录ID FK
+        varchar resource_type_code_资源类型
+        bigint resource_id_资源ID
+        bigint user_id_使用人ID FK
+        varchar operation_type_code_操作类型
+        int usage_count_使用次数
+        numeric usage_quota_消耗配额
+        timestamp usage_time_使用时间
+        int response_time_ms_响应时间毫秒
+        varchar status_code_状态
+        text error_msg_错误信息
+        bigint created_by_创建人
+        timestamp create_time_创建时间
+    }
