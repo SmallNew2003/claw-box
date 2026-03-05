@@ -7,7 +7,8 @@
   "scripts": {
     "dev": "electron-vite dev",
     "build": "electron-vite build",
-    "preview": "electron-vite preview"
+    "preview": "electron-vite preview",
+    "openspec:preflight": "node --experimental-strip-types tools/openspec-preflight.ts"
   },
   "dependencies": {
     "react": "^18.3.1",
