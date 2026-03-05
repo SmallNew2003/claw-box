@@ -175,6 +175,233 @@ body {
   box-shadow: var(--shadow);
 }
 
+.dashboard-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.quick-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.dashboard-header h1 {
+  margin: 0 0 6px;
+  font-size: 22px;
+}
+
+.dashboard-header p {
+  margin: 0;
+  color: var(--muted);
+}
+
+.dashboard-controls {
+  display: flex;
+  align-items: flex-end;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.filter-select {
+  min-width: 200px;
+}
+
+.filter-summary {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+}
+
+.session-status-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.session-status-card {
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 16px;
+  background: #fff;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  text-align: left;
+  cursor: pointer;
+  font: inherit;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.session-status-card:hover {
+  border-color: #dcc1b0;
+  transform: translateY(-1px);
+}
+
+.session-status-card:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
+
+.session-status-card.is-active {
+  border-color: var(--accent);
+  background: #fff4ea;
+  box-shadow: 0 10px 24px rgba(211, 107, 46, 0.2);
+}
+
+.session-status-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--muted);
+}
+
+.session-status-count {
+  font-size: 28px;
+}
+
+.session-status-hint {
+  margin: 0;
+  font-size: 12px;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.status-tone {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 600;
+  background: #f1ede8;
+  color: var(--muted);
+}
+
+.status-tone.running {
+  background: #ffe4d2;
+  color: #b4541d;
+}
+
+.status-tone.idle {
+  background: #e4efff;
+  color: #2c5ea8;
+}
+
+.status-tone.waiting {
+  background: #fef2d6;
+  color: #9a6b18;
+}
+
+.status-tone.paused {
+  background: #ececf2;
+  color: #5f6067;
+}
+
+.session-table {
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  background: #fff;
+  overflow: hidden;
+}
+
+.session-table-header,
+.session-row {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1.4fr 1fr 1fr;
+  gap: 12px;
+  align-items: center;
+  padding: 12px 16px;
+}
+
+.session-table-header {
+  background: #f8f3ed;
+  color: var(--muted);
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.session-row {
+  font-size: 13px;
+  border-top: 1px solid var(--border);
+}
+
+.session-row:hover {
+  background: #fffaf6;
+}
+
+.session-title {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 600;
+  background: #f1ede8;
+  color: var(--muted);
+}
+
+.status-badge.running {
+  background: #ffe4d2;
+  color: #b4541d;
+}
+
+.status-badge.idle {
+  background: #e4efff;
+  color: #2c5ea8;
+}
+
+.status-badge.waiting {
+  background: #fef2d6;
+  color: #9a6b18;
+}
+
+.status-badge.paused {
+  background: #ececf2;
+  color: #5f6067;
+}
+
+.overview-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.empty-state {
+  padding: 24px;
+  border: 1px dashed var(--border);
+  border-radius: 14px;
+  background: #fffaf6;
+  text-align: center;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.empty-state.small {
+  padding: 14px;
+  font-size: 12px;
+}
+
 .workspace-header {
   display: flex;
   align-items: center;
@@ -312,8 +539,19 @@ body {
     grid-template-columns: 1fr;
   }
 
+  .session-status-grid,
+  .overview-grid,
   .status-grid {
     grid-template-columns: 1fr;
+  }
+
+  .session-table-header,
+  .session-row {
+    grid-template-columns: 1fr;
+  }
+
+  .filter-summary {
+    margin-left: 0;
   }
 
   .topbar {
