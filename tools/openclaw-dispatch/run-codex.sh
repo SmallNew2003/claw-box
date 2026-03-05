@@ -26,13 +26,9 @@ print(sys.argv[1].replace('\\', '\\\\').replace('"', '\\"'))
 PY
 )"
 
-if command -v script >/dev/null 2>&1; then
-  CMD=(script -q /dev/null /bin/bash -lc "/Users/jelvin/.nvm/versions/node/v22.16.0/bin/codex exec --full-auto \"$PROMPT_ESCAPED\"")
-else
-  CMD=(/Users/jelvin/.nvm/versions/node/v22.16.0/bin/codex exec --full-auto "$PROMPT_RAW")
-fi
+touch "$TMP_OUT"
 
-"${CMD[@]}" 2>&1 | python3 - <<'PY' "$TMP_OUT" "$STREAM_FILE" "$QUESTION_FILE" "$WAKE_REGEX" "$ROOT_DIR/tools/openclaw-dispatch/wake-openclaw.sh"
+python3 - <<'PY' "$TMP_OUT" "$STREAM_FILE" "$QUESTION_FILE" "$WAKE_REGEX" "$ROOT_DIR/tools/openclaw-dispatch/wake-openclaw.sh" &
 import json
 import re
 import subprocess
@@ -50,11 +46,14 @@ pattern = re.compile(regex)
 last_wake = 0.0
 cooldown = 3.0
 
-with open(out_path, "w", encoding="utf-8") as out, open(stream_file, "a", encoding="utf-8") as stream:
-    for raw in sys.stdin:
-        out.write(raw)
-        out.flush()
-        line = raw.rstrip("\n")
+with open(out_path, "r", encoding="utf-8", errors="replace") as source, open(stream_file, "a", encoding="utf-8") as stream:
+    source.seek(0, 2)
+    while True:
+        line = source.readline()
+        if not line:
+            time.sleep(0.2)
+            continue
+        line = line.rstrip("\n")
         payload = {
             "timestamp": datetime.now(timezone.utc).isoformat(),
             "event": "stdout",
@@ -75,6 +74,15 @@ with open(out_path, "w", encoding="utf-8") as out, open(stream_file, "a", encodi
             subprocess.run([wake_script, question_file], check=False)
             last_wake = now
 PY
+TAIL_PID=$!
+
+if command -v script >/dev/null 2>&1; then
+  script -q "$TMP_OUT" /bin/bash -lc "/Users/jelvin/.nvm/versions/node/v22.16.0/bin/codex exec --full-auto \"$PROMPT_ESCAPED\"" || EXIT_CODE=$?
+else
+  "/Users/jelvin/.nvm/versions/node/v22.16.0/bin/codex" exec --full-auto "$PROMPT_RAW" >"$TMP_OUT" 2>&1 || EXIT_CODE=$?
+fi
+
+kill "$TAIL_PID" >/dev/null 2>&1 || true
 
 EXIT_CODE=${PIPESTATUS[0]}
 
