@@ -27,12 +27,12 @@ PY
 )"
 
 if command -v script >/dev/null 2>&1; then
-  script -q /dev/null /bin/bash -lc "/Users/jelvin/.nvm/versions/node/v22.16.0/bin/codex exec --full-auto \"$PROMPT_ESCAPED\"" 2>&1 | \
-    python3 - <<'PY' "$TMP_OUT" "$STREAM_FILE" "$QUESTION_FILE" "$WAKE_REGEX" "$ROOT_DIR/tools/openclaw-dispatch/wake-openclaw.sh"
+  CMD=(script -q /dev/null /bin/bash -lc "/Users/jelvin/.nvm/versions/node/v22.16.0/bin/codex exec --full-auto \"$PROMPT_ESCAPED\"")
 else
-  "/Users/jelvin/.nvm/versions/node/v22.16.0/bin/codex" exec --full-auto "$PROMPT_RAW" 2>&1 | \
-    python3 - <<'PY' "$TMP_OUT" "$STREAM_FILE" "$QUESTION_FILE" "$WAKE_REGEX" "$ROOT_DIR/tools/openclaw-dispatch/wake-openclaw.sh"
+  CMD=(/Users/jelvin/.nvm/versions/node/v22.16.0/bin/codex exec --full-auto "$PROMPT_RAW")
 fi
+
+"${CMD[@]}" 2>&1 | python3 - <<'PY' "$TMP_OUT" "$STREAM_FILE" "$QUESTION_FILE" "$WAKE_REGEX" "$ROOT_DIR/tools/openclaw-dispatch/wake-openclaw.sh"
 import json
 import re
 import subprocess
