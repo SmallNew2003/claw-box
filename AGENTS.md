@@ -40,6 +40,7 @@
 
 - 使用中文回复
 - 提交格式：`feat(模块): 中文内容`
+- 新功能/破坏性变更必须先通过 `npm run openspec:preflight`
 - **禁止使用 emoji**（适用于所有输出：代码、文档、skills、注释）
 - 禁止创建临时分析文档（`*_ANALYSIS.md`、`*_REVIEW.md` 等）
 - Skills 以 `.agents/skills` 为唯一来源
