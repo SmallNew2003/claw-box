@@ -29,6 +29,8 @@ export OPENCLAW_WAKE_ON_REGEX="问题|选择|请确认|确认|阻塞|blocked"
 ./tools/openclaw-dispatch/run-codex.sh "实现会话仪表盘 UI"
 ```
 
+说明：`run-codex.sh` 目前只接受一个完整 prompt 字符串参数。
+
 ## 输出文件格式
 
 - `.opencode/dispatch/latest.json`：任务结束时的完整输出（结构与 Claude Code 保持一致）

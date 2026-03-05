@@ -14,8 +14,25 @@ STREAM_FILE="$OUT_DIR/stream.jsonl"
 QUESTION_FILE="$OUT_DIR/question.json"
 WAKE_REGEX="${OPENCLAW_WAKE_ON_REGEX:-问题|选择|请确认|确认|阻塞|blocked}"
 
-"/Users/jelvin/.nvm/versions/node/v22.16.0/bin/codex" exec --full-auto "$@" 2>&1 | \
-  python3 - <<'PY' "$TMP_OUT" "$STREAM_FILE" "$QUESTION_FILE" "$WAKE_REGEX" "$ROOT_DIR/tools/openclaw-dispatch/wake-openclaw.sh"
+if [ "$#" -ne 1 ]; then
+  echo "run-codex.sh expects a single prompt string" >&2
+  exit 2
+fi
+
+PROMPT_RAW="$1"
+PROMPT_ESCAPED="$(python3 - <<'PY' "$PROMPT_RAW"
+import sys
+print(sys.argv[1].replace('\\', '\\\\').replace('"', '\\"'))
+PY
+)"
+
+if command -v script >/dev/null 2>&1; then
+  script -q /dev/null /bin/bash -lc "/Users/jelvin/.nvm/versions/node/v22.16.0/bin/codex exec --full-auto \"$PROMPT_ESCAPED\"" 2>&1 | \
+    python3 - <<'PY' "$TMP_OUT" "$STREAM_FILE" "$QUESTION_FILE" "$WAKE_REGEX" "$ROOT_DIR/tools/openclaw-dispatch/wake-openclaw.sh"
+else
+  "/Users/jelvin/.nvm/versions/node/v22.16.0/bin/codex" exec --full-auto "$PROMPT_RAW" 2>&1 | \
+    python3 - <<'PY' "$TMP_OUT" "$STREAM_FILE" "$QUESTION_FILE" "$WAKE_REGEX" "$ROOT_DIR/tools/openclaw-dispatch/wake-openclaw.sh"
+fi
 import json
 import re
 import subprocess
