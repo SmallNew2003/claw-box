@@ -28,4 +28,4 @@ export OPENCLAW_GATEWAY_TOKEN=xxx
 
 ## 输出文件格式
 
-输出保存在 `.opencode/dispatch/latest.json`。
+输出保存在 `.opencode/dispatch/latest.json`，结构与 Claude Code 保持一致。

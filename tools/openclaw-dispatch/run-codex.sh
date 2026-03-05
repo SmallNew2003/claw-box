@@ -33,7 +33,6 @@ payload = {
     "event": "SessionEnd",
     "output": output,
     "status": "done" if exit_code == 0 else "failed",
-    "exit_code": exit_code,
 }
 
 with open(output_file, "w", encoding="utf-8") as f:
