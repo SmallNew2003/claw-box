@@ -22,10 +22,15 @@
 ```bash
 export OPENCLAW_GATEWAY_TOKEN=xxx
 
+# 可选：命中这些关键词时即时唤醒
+export OPENCLAW_WAKE_ON_REGEX="问题|选择|请确认|确认|阻塞|blocked"
+
 # 例：执行任务并自动落盘 + 唤醒
 ./tools/openclaw-dispatch/run-codex.sh "实现会话仪表盘 UI"
 ```
 
 ## 输出文件格式
 
-输出保存在 `.opencode/dispatch/latest.json`，结构与 Claude Code 保持一致。
+- `.opencode/dispatch/latest.json`：任务结束时的完整输出（结构与 Claude Code 保持一致）
+- `.opencode/dispatch/stream.jsonl`：实时输出流
+- `.opencode/dispatch/question.json`：命中关键词时写入的问题提示
