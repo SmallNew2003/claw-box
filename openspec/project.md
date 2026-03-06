@@ -1,6 +1,6 @@
 # Claw Box - 项目上下文
 
-<!-- 规范版本: v2.0.0 -->
+<!-- 规范版本: v2.1.0 -->
 <!-- 最后更新: 2026-03-05 -->
 <!-- 维护者: 开发团队 -->
 
@@ -36,35 +36,37 @@
 
 ## Purpose
 
-Claw Box 是面向 OpenClaw 的桌面控制台应用，提供多会话、模型、任务、技能、MCP、Agent Teams 与项目管理的一体化操作界面。
+Claw Box 是个人 AI 助手的桌面控制台，提供会话管理、Agent Teams 协作、记忆系统、技能与 MCP 管理的统一界面。
 
 **核心目标**：
-- 提供稳定、可扩展的多会话与模型切换体验
-- 统一管理定时任务、技能与 MCP 连接
-- 展示 Agent Teams 运行态并支持协作管理
-- 支持项目级上下文与配置
-- 保留桌面端高效交互，后续可扩展到 Web/Windows/移动端
+- 提供清晰的会话与 Agent Teams 运行态可视化
+- 管理长期记忆、技能与 MCP 连接
+- 支持单机一体化部署（后端 Core Service + 前端控制台）
+- 桌面端优先（Tauri/Electron），保留 Web 端扩展能力
 
 **系统定位**：
-- 不直接承载模型推理，作为 OpenClaw 的控制层
-- 通过本地 Gateway/API 读取状态与下发指令
-- 以桌面应用优先，保留跨平台移植能力
+- 控制台层：负责 UI 交互与状态展示
+- 后端层：Core Service（Rust）提供统一 API
+- 不承载模型推理，通过 API 调用外部模型服务
 
 ## Tech Stack
 
-### 桌面端
-- Electron + TypeScript
-- React 18 + Vite
-- 轻量状态管理（Zustand 或 React Context）
+### 前端（控制台）
+- Tauri（优先）或 Electron
+- React 18 + TypeScript + Vite
+- Zustand（状态管理）
+- TailwindCSS（样式）
 
-### Web/跨端（规划）
-- React 18 + Vite
-- 统一 UI 组件库与状态管理
+### 后端（Core Service）
+- Rust（HTTP/JSON API）
+- SQLite（默认存储）
+- 本地向量检索（记忆系统）
+- 可选：PostgreSQL + Qdrant/pgvector + Redis
 
 ### 工程
-- Electron 主进程 + 渲染进程 + Preload 安全隔离
-- 本地配置存储（JSON/SQLite/IndexedDB 组合）
-- IPC 统一桥接 OpenClaw 能力
+- 单机一体化部署（单二进制 + 内嵌前端）
+- 前后端通过 HTTP/JSON + SSE/WebSocket 通信
+- 配置分层：local / workspace / runtime
 
 ## Project Conventions
 
@@ -77,10 +79,10 @@ Claw Box 是面向 OpenClaw 的桌面控制台应用，提供多会话、模型�
 
 ### Architecture Patterns
 
-- 主进程负责系统集成与数据持久化
-- 渲染进程负责 UI、状态管理与用户交互
-- IPC 统一封装为服务层，避免渲染进程直接访问系统资源
-- 采用模块化能力包：会话、模型、任务、技能、MCP、Teams、项目
+- 前端：纯 UI 层，通过 HTTP API 与后端通信
+- 后端：Core Service 提供统一 API，内部事件流与任务编排
+- 模块化能力：会话、Agent Teams、记忆、技能、MCP
+- 事件流：SSE/WebSocket 实时推送运行态与日志
 
 ### Testing Strategy
 - 单元测试：核心业务逻辑与状态流
@@ -97,33 +99,31 @@ Claw Box 是面向 OpenClaw 的桌面控制台应用，提供多会话、模型�
 
 ### 关键角色
 
-- **桌面用户**：需要同时管理多个会话与模型
-- **系统管理员**：管理全局模型与技能配置
-- **协作者**：关注 Agent Teams 状态与任务协同
+- **个人用户**：使用 AI 助手完成日常任务，管理会话与记忆
 
 ### 核心领域
 
-- **会话管理域**：会话生命周期、上下文与消息
-- **模型管理域**：模型配置、切换与状态
-- **任务调度域**：定时任务与执行历史
-- **技能与 MCP 域**：技能安装、配置与 MCP 连接
-- **Agent Teams 域**：团队编排与运行状态
-- **项目管理域**：项目配置与上下文收敛
-- **市场域**：技能市场与更新管理
+- **会话管理域**：会话生命周期、消息历史、运行态
+- **Agent Teams 域**：团队编排、角色分配、协作流程
+- **记忆系统域**：长期记忆存储、向量检索、摘要压缩
+- **技能管理域**：技能安装、配置、执行监控
+- **MCP 集成域**：MCP 服务器连接、工具索引、调用日志
 
 ### 职责边界
 
-**我们负责**：
-- ✅ 多会话管理与状态展示
-- ✅ 模型切换与配置管理
-- ✅ 定时任务创建与监控
-- ✅ 技能与 MCP 配置管理
-- ✅ Agent Teams 状态可视化
-- ✅ 项目上下文管理
+**控制台负责**：
+- 会话与 Agent Teams 运行态可视化
+- 记忆、技能、MCP 配置管理
+- 用户交互与状态展示
+
+**Core Service 负责**：
+- 业务逻辑与任务编排
+- 数据持久化与检索
+- 模型调用与工具执行
 
 **我们不负责**：
-- ❌ 模型推理与训练
-- ❌ OpenClaw 以外的业务系统集成
+- 模型推理与训练
+- 多租户与权限管理（MVP）
 
 ## Important Constraints
 
@@ -132,9 +132,9 @@ Claw Box 是面向 OpenClaw 的桌面控制台应用，提供多会话、模型�
 - 本地配置需可导出与迁移
 
 ### 技术约束
-- Electron 安全隔离（禁用 NodeIntegration）
-- IPC 仅暴露白名单能力
-- 默认本地数据落盘，支持后续云同步扩展
+- 前端通过 HTTP API 与后端通信，无直接系统访问
+- 默认本地数据落盘（SQLite），支持外部数据库扩展
+- 单机一体化部署，可选分离部署
 
 ### 安全约束
 - API Token 加密存储
@@ -143,8 +143,9 @@ Claw Box 是面向 OpenClaw 的桌面控制台应用，提供多会话、模型�
 
 ## External Dependencies
 
-- OpenClaw Gateway API（本地或内网部署）
-- 可选：技能市场服务（后续接入）
+- 模型服务（Claude API、OpenAI API、本地模型）
+- 可选：外部向量数据库（Qdrant/pgvector）
+- 可选：Redis（缓存与会话状态）
 
 ## Reference Documents
 

@@ -1,6 +1,8 @@
 # Claw Box
 
-面向 OpenClaw 的桌面控制台原型（Electron + React + Vite）。目前是 UI 壳，数据为本地 mock。
+个人 AI 助手的桌面控制台（Tauri/Electron + React + Vite）。提供会话管理、Agent Teams、记忆系统、技能与 MCP 管理的统一界面。
+
+目前处于原型阶段，UI 使用 mock 数据，后端 Core Service 开发中。
 
 ## 开发
 
@@ -27,5 +29,8 @@ npm run build
 
 - 主要界面位于 `src/renderer/App.tsx`
 - 样式位于 `src/renderer/styles.css`
-- 文档：`docs/product-spec.md`、`docs/architecture.md`
+- 架构设计：`docs/architecture.md`
+- 产品规格：`docs/product-spec.md`
+- 功能规范：`openspec/specs/`
+- 文档组织规范：`openspec/DOCUMENTATION.md`
 - 会话仪表盘包含状态卡片、会话列表以及状态/模型筛选交互

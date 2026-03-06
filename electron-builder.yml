@@ -1,9 +1,0 @@
-appId: com.openclaw.clawbox
-productName: Claw Box
-files:
-  - dist/**
-mac:
-  target:
-    - dmg
-    - zip
-  category: public.app-category.productivity
