@@ -1,5 +1,9 @@
 # OpenSpec Reference
 
+<!-- 规范版本: v1.0.0 -->
+<!-- 最后更新: 2026-03-06 -->
+<!-- 维护者: 开发团队 -->
+
 > **Note**: 本文档为按需参考，agent 默认不读取。使用 `openspec-planning` skill 开始工作流，遇到具体问题时再用 Read 工具读取本文档的相关章节。
 
 ## Quick Reference
@@ -23,14 +27,109 @@ openspec show [change] --json --deltas-only
 openspec validate [change] --strict --no-interactive
 ```
 
-### Command Flags
+## 工作流程图
 
-- `--json` - Machine-readable output
-- `--type change|spec` - Disambiguate items
-- `--strict` - Comprehensive validation
-- `--no-interactive` - Disable prompts
-- `--skip-specs` - Archive without spec updates
-- `--yes`/`-y` - Skip confirmation prompts
+### 整体工作流
+
+```mermaid
+graph TD
+    A[收到用户消息] --> B[调用 using-superpowers]
+    B --> C{需求明确?}
+    C -->|否| D[brainstorming]
+    C -->|是| E[openspec-planning]
+    D --> F[writing-plans]
+    F --> E
+    E --> G[executing-plans]
+    G --> H[verification-before-completion]
+    H --> I[归档]
+    
+    B --> J{Bug 修复?}
+    J -->|是| K[systematic-debugging]
+    K --> L[实现修复]
+    L --> H
+    
+    B --> M{代码审查?}
+    M -->|是| N[requesting-code-review]
+    
+    style D fill:#e1f5ff
+    style E fill:#e1f5ff
+    style K fill:#e1f5ff
+    style F fill:#fff4e1
+    style G fill:#fff4e1
+    style H fill:#e8f5e9
+```
+
+**图例说明**：
+- 蓝色：Process skills（决定如何做）
+- 黄色：Implementation skills（指导执行）
+- 绿色：Verification skills（验证完成）
+
+### OpenSpec 三阶段流程
+
+```mermaid
+graph LR
+    A[Planning<br/>规划阶段] --> B[Implementing<br/>实施阶段]
+    B --> C[Archiving<br/>归档阶段]
+    
+    A --> A1[创建 proposal.md]
+    A --> A2[创建 tasks.md]
+    A --> A3[创建 specs/]
+    
+    B --> B1[实现 tasks]
+    B --> B2[更新 tasks.md 状态]
+    B --> B3[运行测试]
+    
+    C --> C1[验证完成]
+    C --> C2[归档到 archive/]
+    C --> C3[更新 specs/]
+    
+    style A fill:#e3f2fd
+    style B fill:#fff3e0
+    style C fill:#e8f5e9
+```
+
+**阶段说明**：
+- Planning：创建变更提案，定义需求和任务
+- Implementing：按 tasks.md 执行实现
+- Archiving：验证完成后归档，更新规范
+
+### 技能决策树
+
+```mermaid
+graph TD
+    A[收到任务] --> B{任务类型?}
+    
+    B -->|新功能| C{需求明确?}
+    C -->|否| D[brainstorming<br/>探索需求]
+    C -->|是| E[openspec-planning<br/>创建提案]
+    D --> E
+    
+    B -->|Bug 修复| F[systematic-debugging<br/>系统化调试]
+    F --> G[实现修复]
+    
+    B -->|代码审查| H[requesting-code-review<br/>请求审查]
+    
+    B -->|并行任务| I[dispatching-parallel-agents<br/>并行执行]
+    
+    B -->|完成验证| J[verification-before-completion<br/>验证完成]
+    
+    E --> K[executing-plans<br/>执行实现]
+    G --> J
+    K --> J
+    
+    style D fill:#e1f5ff
+    style E fill:#e1f5ff
+    style F fill:#e1f5ff
+    style K fill:#fff4e1
+    style J fill:#e8f5e9
+```
+
+**决策说明**：
+- 新功能：需求不明确先 brainstorming，明确则直接 openspec-planning
+- Bug 修复：使用 systematic-debugging 系统化分析
+- 代码审查：使用 requesting-code-review
+- 并行任务：使用 dispatching-parallel-agents
+- 完成验证：使用 verification-before-completion
 
 ## Directory Structure
 
@@ -70,12 +169,52 @@ After deployment:
 - Move `changes/[name]/` → `changes/archive/YYYY-MM-DD-[name]/`
 - Update `specs/` if capabilities changed
 - Use `openspec archive <change-id> --yes` (always pass the change ID explicitly)
-- Run `openspec validate --strict --no-interactive` to confirm the archived change passes checks  
-├─ New feature/capability? → Create proposal
-├─ Breaking change? → Create proposal
-├─ Architecture change? → Create proposal
-└─ Unclear? → Create proposal (safer)
+- Run `openspec validate --strict --no-interactive` to confirm the archived change passes checks
+
+#### 归档决策表
+
+| 条件 | 是否归档 | 说明 |
+|------|---------|------|
+| 代码已合并到主分支 | 必须 | 代码已进入生产 |
+| 所有测试通过 | 必须 | 质量保证 |
+| 功能已部署到生产环境 | 必须 | 用户可用 |
+| 仅文档变更（无需部署） | 可以 | 文档已更新 |
+| 实验性功能（未合并） | 不归档 | 保留在 changes/ |
+| tasks.md 有未完成任务 | 不归档 | 先完成所有任务 |
+
+#### 归档前检查清单
+
+在运行 `openspec archive` 前，确认：
+
+- [ ] tasks.md 所有任务标记为 [x]
+- [ ] 运行 openspec validate --strict --no-interactive 通过
+- [ ] 更新相关的 specs/ 文件
+- [ ] 代码已合并到主分支（如有代码变更）
+- [ ] 所有测试通过（如有代码变更）
+- [ ] 功能已部署或明确不需要部署
+
+#### 归档命令
+
+```bash
+# 归档指定 change
+openspec archive <change-id> --yes
+
+# 验证归档结果
+openspec validate --strict --no-interactive
+ls -la openspec/changes/archive/ | grep <change-id>
 ```
+
+#### 归档后操作
+
+1. 更新 `openspec/specs/` 中的相关规范
+2. 在 `openspec/CHANGELOG.md` 中记录变更
+3. 提交归档变更：
+```bash
+git add openspec/
+git commit -m "chore(openspec): 归档 <change-id>"
+```
+
+---
 
 ### Proposal Structure
 
