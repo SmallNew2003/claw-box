@@ -1,102 +1,106 @@
 # Claw Box 架构设计
 
+## 文档索引
+
+- [后端架构设计](./backend-architecture.md) - Core Service 详细设计
+- [API 规范](./api-specification.md) - HTTP API 与事件协议
+- [事件协议](./event-protocol.md) - SSE 事件流设计
+- [安全设计](./security-design.md) - 安全策略与实现
+- [性能策略](./performance-strategy.md) - 性能优化方案
+
 ## 整体架构
 
-Claw Box 采用 Electron 多进程架构，分为主进程和渲染进程，通过 IPC 通信实现数据交互。
+Claw Box 采用前后端分离架构，前端为桌面控制台（Tauri/Electron），后端为 Core Service（Rust），通过 HTTP API 与事件流通信。
 
 ```
 ┌─────────────────────────────────────────────────────┐
-│                   Electron 应用                      │
+│                   Claw Box 系统                      │
 ├─────────────────────────────────────────────────────┤
 │                                                     │
 │  ┌──────────────┐         ┌──────────────────┐    │
-│  │   主进程      │  IPC    │   渲染进程        │    │
-│  │  (Node.js)   │◄───────►│   (React)        │    │
-│  │              │         │                  │    │
-│  │ - 窗口管理    │         │ - UI 组件         │    │
-│  │ - 文件系统    │         │ - 状态管理        │    │
-│  │ - 数据持久化  │         │ - 用户交互        │    │
-│  │ - 系统集成    │         │ - 数据展示        │    │
+│  │  前端控制台   │  HTTP   │   Core Service   │    │
+│  │ (Tauri/React)│◄───────►│     (Rust)       │    │
+│  │              │  SSE    │                  │    │
+│  │ - UI 组件     │         │ - 业务逻辑        │    │
+│  │ - 状态管理    │         │ - 任务编排        │    │
+│  │ - 用户交互    │         │ - 数据持久化      │    │
+│  │ - 数据展示    │         │ - 模型调用        │    │
 │  └──────────────┘         └──────────────────┘    │
+│                                 │                  │
+│                                 ▼                  │
+│                          ┌──────────────┐         │
+│                          │   SQLite     │         │
+│                          │ + 向量检索    │         │
+│                          └──────────────┘         │
 │                                                     │
 └─────────────────────────────────────────────────────┘
 ```
 
 ## 技术栈
 
-### 核心框架
-- **Electron**: 桌面应用框架，版本 28+
+### 前端（控制台）
+- **Tauri**（优先）或 **Electron**: 桌面应用框架
 - **React**: UI 框架，版本 18+
 - **TypeScript**: 类型系统，版本 5+
 - **Vite**: 构建工具和开发服务器
 
+### 后端（Core Service）
+- **Rust**: 业务逻辑与 API 服务
+- **Axum/Actix-web**: HTTP 框架
+- **SQLite**: 默认数据库
+- **本地向量检索**: 记忆系统（可选外部 Qdrant/pgvector）
+
 ### UI 和样式
 - **TailwindCSS**: 原子化 CSS 框架
 - **Lucide React**: 图标库
-- **Headless UI**: 无样式组件库（可选）
 
 ### 状态管理
 - **Zustand**: 轻量级状态管理
-- **React Context**: 局部状态共享
+- **React Query**: 服务端状态管理
 
 ### 数据持久化
-- **electron-store**: 配置存储
-- **IndexedDB**: 大量数据存储
-- **JSON 文件**: 会话数据存储
+- **SQLite**: 默认存储（会话、记忆、配置）
+- **可选**: PostgreSQL + Qdrant/pgvector + Redis
 
 ## 目录结构
 
 ```
 claw-box/
-├── src/
-│   ├── main/                    # 主进程代码
-│   │   ├── index.ts            # 主进程入口
-│   │   ├── window.ts           # 窗口管理
-│   │   ├── ipc/                # IPC 处理器
-│   │   │   ├── session.ts      # 会话相关
-│   │   │   ├── model.ts        # 模型相关
-│   │   │   └── task.ts         # 任务相关
-│   │   └── services/           # 后端服务
-│   │       ├── storage.ts      # 数据存储
-│   │       └── config.ts       # 配置管理
-│   │
-│   ├── renderer/               # 渲染进程代码
-│   │   ├── src/
-│   │   │   ├── App.tsx         # 应用根组件
-│   │   │   ├── main.tsx        # 渲染进程入口
-│   │   │   ├── components/     # UI 组件
-│   │   │   │   ├── Layout/     # 布局组件
-│   │   │   │   ├── Session/    # 会话组件
-│   │   │   │   ├── Model/      # 模型组件
-│   │   │   │   └── Status/     # 状态组件
-│   │   │   ├── stores/         # 状态管理
-│   │   │   │   ├── session.ts  # 会话状态
-│   │   │   │   ├── model.ts    # 模型状态
-│   │   │   │   └── ui.ts       # UI 状态
-│   │   │   ├── hooks/          # 自定义 Hooks
-│   │   │   ├── utils/          # 工具函数
-│   │   │   └── types/          # 类型定义
-│   │   ├── index.html          # HTML 模板
-│   │   └── vite.config.ts      # Vite 配置
-│   │
-│   ├── shared/                 # 共享代码
-│   │   ├── types/              # 共享类型
-│   │   │   ├── session.ts      # 会话类型
-│   │   │   ├── model.ts        # 模型类型
-│   │   │   ├── task.ts         # 任务类型
-│   │   │   └── ipc.ts          # IPC 类型
-│   │   └── constants/          # 常量定义
-│   │
-│   └── preload/                # 预加载脚本
-│       └── index.ts            # 暴露安全的 API
+├── frontend/                   # 前端控制台
+│   ├── src/
+│   │   ├── App.tsx            # 应用根组件
+│   │   ├── main.tsx           # 入口
+│   │   ├── components/        # UI 组件
+│   │   │   ├── Session/       # 会话组件
+│   │   │   ├── AgentTeams/    # Agent Teams 组件
+│   │   │   ├── Memory/        # 记忆组件
+│   │   │   ├── Skills/        # 技能组件
+│   │   │   └── MCP/           # MCP 组件
+│   │   ├── stores/            # 状态管理
+│   │   ├── api/               # API 客户端
+│   │   ├── hooks/             # 自定义 Hooks
+│   │   └── types/             # 类型定义
+│   ├── index.html
+│   └── vite.config.ts
+│
+├── backend/                    # Core Service (Rust)
+│   ├── src/
+│   │   ├── main.rs            # 入口
+│   │   ├── api/               # HTTP API
+│   │   ├── services/          # 业务逻辑
+│   │   │   ├── session.rs     # 会话服务
+│   │   │   ├── agent_teams.rs # Agent Teams 服务
+│   │   │   ├── memory.rs      # 记忆服务
+│   │   │   ├── skills.rs      # 技能服务
+│   │   │   └── mcp.rs         # MCP 服务
+│   │   ├── models/            # 数据模型
+│   │   ├── db/                # 数据库层
+│   │   └── orchestrator/      # 任务编排
+│   └── Cargo.toml
 │
 ├── docs/                       # 文档
-├── resources/                  # 资源文件
-├── dist/                       # 构建输出
-├── package.json
-├── tsconfig.json
-├── vite.config.ts
-└── electron-builder.yml        # 打包配置
+├── openspec/                   # OpenSpec 规范
+└── tools/                      # 工具脚本
 ```
 
 ## 核心模块设计
@@ -107,11 +111,13 @@ claw-box/
 - 会话的 CRUD 操作
 - 会话状态维护
 - 消息历史管理
-- 会话搜索和过滤
+- 运行态（Run/Step）展示
 
 **数据流**
 ```
-UI 组件 → Store → IPC → 主进程 → 文件系统
+UI 组件 → API 客户端 → Core Service → SQLite
+                  ↓
+              SSE 推送
                   ↓
               更新 UI
 ```
@@ -128,7 +134,7 @@ interface Session {
   status: SessionStatus;
 }
 
-interface SessionService {
+interface SessionAPI {
   create(name: string): Promise<Session>;
   delete(id: string): Promise<void>;
   update(id: string, data: Partial<Session>): Promise<Session>;
@@ -137,78 +143,71 @@ interface SessionService {
 }
 ```
 
-### 2. 模型管理模块
+### 2. Agent Teams 模块
 
 **职责**
-- 模型配置管理
-- 模型状态监控
-- 模型切换逻辑
-- API 调用封装
+- 团队编排与角色管理
+- 任务分配与协作流程
+- 运行态可视化
+- 结果聚合
 
-**支持的模型**
+**团队结构**
 ```typescript
-type ModelProvider = 'claude' | 'openai' | 'local' | 'custom';
-
-interface Model {
+interface AgentTeam {
   id: string;
   name: string;
-  provider: ModelProvider;
-  config: ModelConfig;
-  status: 'available' | 'unavailable';
-  metrics: ModelMetrics;
+  mode: 'sequential' | 'parallel' | 'expert' | 'pipeline';
+  roles: Role[];
+  flow: Flow;
+  currentRun?: Run;
 }
-```
 
-### 3. 状态监控模块
-
-**职责**
-- 实时状态收集
-- 性能指标计算
-- 状态变化通知
-- 历史数据记录
-
-**监控指标**
-```typescript
-interface SessionMetrics {
-  tokenUsage: {
-    input: number;
-    output: number;
-    total: number;
-  };
-  responseTime: number;
-  messageCount: number;
-  errorCount: number;
-}
-```
-
-### 4. 任务调度模块
-
-**职责**
-- 定时任务创建和管理
-- Cron 表达式解析
-- 任务执行调度
-- 任务结果处理
-
-**任务结构**
-```typescript
-interface Task {
+interface Run {
   id: string;
-  name: string;
-  schedule: string; // Cron 表达式
-  action: TaskAction;
-  enabled: boolean;
-  lastRun?: number;
-  nextRun?: number;
+  teamId: string;
+  status: 'running' | 'completed' | 'failed';
+  steps: Step[];
+  startedAt: number;
+  completedAt?: number;
 }
 ```
 
-### 5. 技能系统模块
+### 3. 记忆系统模块
 
 **职责**
-- 技能注册和发现
-- 技能执行引擎
-- 技能依赖管理
-- 技能配置存储
+- 长期记忆存储与检索
+- 向量 embedding 生成
+- 语义相似度匹配
+- 记忆管理（标签、编辑、删除）
+
+**记忆结构**
+```typescript
+interface MemoryItem {
+  id: string;
+  content: string;
+  summary: string;
+  embedding: number[];
+  tags: string[];
+  source: string;
+  createdAt: number;
+}
+
+interface MemoryAPI {
+  store(content: string, tags?: string[]): Promise<MemoryItem>;
+  search(query: string, limit?: number): Promise<MemoryItem[]>;
+  list(filters?: MemoryFilters): Promise<MemoryItem[]>;
+  update(id: string, data: Partial<MemoryItem>): Promise<MemoryItem>;
+  delete(id: string): Promise<void>;
+}
+```
+
+### 4. 技能管理模块
+
+**职责**
+- 技能安装与配置
+- 技能执行监控
+- 技能版本管理
+- 权限控制
 
 **技能接口**
 ```typescript
@@ -217,18 +216,26 @@ interface Skill {
   name: string;
   version: string;
   description: string;
-  execute: (params: any) => Promise<any>;
   config?: SkillConfig;
+  permissions: string[];
+}
+
+interface SkillAPI {
+  install(packagePath: string): Promise<Skill>;
+  uninstall(id: string): Promise<void>;
+  list(): Promise<Skill[]>;
+  configure(id: string, config: SkillConfig): Promise<void>;
+  execute(id: string, params: any): Promise<any>;
 }
 ```
 
-### 6. MCP 集成模块
+### 5. MCP 集成模块
 
 **职责**
-- MCP 服务器连接
-- 工具和资源管理
-- 调用代理和监控
-- 权限控制
+- MCP 服务器连接管理
+- 工具和资源索引
+- 调用代理与监控
+- 日志记录
 
 **MCP 连接**
 ```typescript
@@ -240,136 +247,95 @@ interface MCPConnection {
   tools: MCPTool[];
   resources: MCPResource[];
 }
-```
 
-### 7. Agent Teams 模块
-
-**职责**
-- 多 Agent 协调
-- 任务分配策略
-- 状态同步
-- 结果聚合
-
-**团队结构**
-```typescript
-interface AgentTeam {
-  id: string;
-  name: string;
-  mode: 'leader-follower' | 'parallel' | 'expert' | 'pipeline';
-  agents: Agent[];
-  currentTask?: TeamTask;
+interface MCPAPI {
+  connect(config: MCPConfig): Promise<MCPConnection>;
+  disconnect(id: string): Promise<void>;
+  listTools(connectionId: string): Promise<MCPTool[]>;
+  callTool(connectionId: string, toolName: string, params: any): Promise<any>;
 }
 ```
 
-### 8. 项目管理模块
-
-**职责**
-- 项目配置管理
-- 文件关联
-- 上下文维护
-- 项目模板
-
-**项目结构**
-```typescript
-interface Project {
-  id: string;
-  name: string;
-  description: string;
-  path: string;
-  sessions: string[];
-  config: ProjectConfig;
-}
-```
-
-### 9. 技能市场模块
-
-**职责**
-- 技能浏览和搜索
-- 技能安装和更新
-- 本地技能发布
-- 版本管理
-
-**市场接口**
-```typescript
-interface SkillMarket {
-  search(query: string): Promise<Skill[]>;
-  install(skillId: string): Promise<void>;
-  uninstall(skillId: string): Promise<void>;
-  update(skillId: string): Promise<void>;
-}
-```
-
-## IPC 通信设计
+## API 通信设计
 
 ### 通信模式
 
-1. **请求-响应模式**
-   - 渲染进程发送请求
-   - 主进程处理并返回结果
-   - 用于 CRUD 操作
+1. **HTTP REST API**
+   - 前端发送请求到 Core Service
+   - 用于 CRUD 操作与查询
+   - JSON 格式数据交换
 
-2. **事件订阅模式**
-   - 主进程发送事件
-   - 渲染进程监听并更新 UI
-   - 用于状态变化通知
+2. **Server-Sent Events (SSE)**
+   - Core Service 推送实时事件到前端
+   - 用于运行态更新、日志流、状态变化
+   - 单向推送，低延迟
 
-### IPC 通道定义
+### API 端点定义
 
 ```typescript
 // 会话相关
-'session:create'
-'session:delete'
-'session:update'
-'session:list'
-'session:get'
+GET    /api/sessions
+POST   /api/sessions
+GET    /api/sessions/:id
+PUT    /api/sessions/:id
+DELETE /api/sessions/:id
 
-// 模型相关
-'model:list'
-'model:switch'
-'model:config'
+// Agent Teams 相关
+GET    /api/teams
+POST   /api/teams
+GET    /api/teams/:id/runs
+POST   /api/teams/:id/runs
 
-// 任务相关
-'task:create'
-'task:list'
-'task:execute'
+// 记忆相关
+GET    /api/memories
+POST   /api/memories
+GET    /api/memories/search?q=...
+PUT    /api/memories/:id
+DELETE /api/memories/:id
 
-// 事件通知
-'session:updated'
-'model:status-changed'
-'task:completed'
+// 技能相关
+GET    /api/skills
+POST   /api/skills/install
+DELETE /api/skills/:id
+POST   /api/skills/:id/execute
+
+// MCP 相关
+GET    /api/mcp/connections
+POST   /api/mcp/connections
+GET    /api/mcp/connections/:id/tools
+POST   /api/mcp/connections/:id/call
+
+// 事件流
+GET    /api/events (SSE)
 ```
 
 ## 数据存储设计
 
 ### 存储策略
 
-1. **配置数据**: electron-store
-   - 用户设置
-   - 模型配置
-   - 应用偏好
+1. **SQLite（默认）**
+   - 会话数据
+   - 记忆条目（元数据）
+   - 技能配置
+   - MCP 连接配置
+   - 运行日志
 
-2. **会话数据**: JSON 文件
-   - 每个会话一个文件
-   - 便于导入导出
-   - 支持版本控制
+2. **本地向量检索**
+   - 记忆 embedding 存储与检索
+   - 可选外部 Qdrant/pgvector
 
-3. **大量数据**: IndexedDB
-   - 消息历史
-   - 任务记录
-   - 性能指标
+3. **可选外部存储**
+   - PostgreSQL（替代 SQLite）
+   - Redis（缓存与会话状态）
 
 ### 数据目录结构
 
 ```
-~/Library/Application Support/claw-box/  (macOS)
-├── config.json                          # 应用配置
-├── sessions/                            # 会话数据
-│   ├── session-1.json
-│   ├── session-2.json
-│   └── ...
-├── tasks/                               # 任务数据
-├── skills/                              # 技能数据
-└── projects/                            # 项目数据
+~/.claw-box/                    # 用户数据目录
+├── config.toml                 # 应用配置
+├── claw-box.db                 # SQLite 数据库
+├── vectors/                    # 本地向量索引
+└── logs/                       # 日志文件
 ```
 
 ## 性能优化
