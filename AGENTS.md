@@ -34,14 +34,37 @@
 
 ### 规则 4：文档位置
 - 需求规范 → `openspec/specs/`
-- 技术设计 → `docs/`
-- 变更提案 → `openspec/changes/`
-- Agent 规则 → `openspec/` 或 `.claude/`
+- 技术模式 → `openspec/specs/<capability>/patterns.md`（长期架构模式）
+- 技术设计 → `openspec/changes/YYYY-MM-DD-<description>/design.md`（活跃）或 `openspec/changes/archive/*/design.md`（已归档）
+- 变更提案 → `openspec/changes/YYYY-MM-DD-<description>/`（活跃）或 `openspec/changes/archive/`（已归档）
+- Agent 规则 → `openspec/` 或 `.opencode/`
+
+**注意**：
+- `docs/plans/` 已废弃，不再使用
+- change-id 必须包含日期前缀：`YYYY-MM-DD-<description>`
 
 ### 规则 5：提交格式
 - 格式：`feat(模块): 中文内容`
 - 使用中文回复
 - 新功能/破坏性变更必须先通过 OpenSpec 流程
+
+### 规则 6：提供选项时必须等待用户选择
+当向用户展示多个方案、选项或替代方案时：
+
+- **必须等待用户明确选择**，不得自行决定
+- **禁止假设用户意图**，即使某个选项被标记为"推荐"
+- **禁止开始执行**任何方案，直到用户明确批准
+
+**常见违规示例**：
+- 展示方案 A、B、C 后，直接开始实现方案 A
+- "我推荐方案 B，现在开始实现..." → 错误，必须等待用户选择
+- "基于你的需求，我选择方案 C..." → 错误，用户必须自己选择
+
+**正确做法**：
+- 展示所有方案及其权衡
+- 给出推荐并说明理由
+- 明确询问："你想选择哪个方案？"
+- 等待用户回复后再继续
 
 ---
 
@@ -82,6 +105,8 @@ grep -r "using-superpowers" .opencode/skills/
 | "我先做这一件事" | 先检查 skills 再做任何事 |
 | "创建个总结文档" | 禁止，直接回复用户 |
 | "加个 emoji 更清晰" | 禁止，用文本 |
+| "用户肯定想要推荐方案" | 必须等待用户明确选择 |
+| "我帮用户选个最好的" | 用户必须自己决定 |
 
 ---
 
