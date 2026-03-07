@@ -33,15 +33,15 @@
 **例外**：用户明确要求创建时可以创建
 
 ### 规则 4：文档位置
-- 需求规范 → `openspec/specs/`
-- 技术模式 → `openspec/specs/<capability>/patterns.md`（长期架构模式）
-- 技术设计 → `openspec/changes/YYYY-MM-DD-<description>/design.md`（活跃）或 `openspec/changes/archive/*/design.md`（已归档）
-- 变更提案 → `openspec/changes/YYYY-MM-DD-<description>/`（活跃）或 `openspec/changes/archive/`（已归档）
-- Agent 规则 → `openspec/` 或 `.opencode/`
+创建或修改文档前，必须先查阅 `openspec/DOCUMENTATION.md` 确认正确的文档位置。
 
-**注意**：
-- `docs/plans/` 已废弃，不再使用
-- change-id 必须包含日期前缀：`YYYY-MM-DD-<description>`
+**核心原则**：
+- 需求规范 → `openspec/specs/`
+- 技术设计 → `openspec/changes/<change-id>/design.md`
+- 项目上下文 → `openspec/project.md`（不放详细规范）
+- 详细规范 → `openspec/specs/<capability>/spec.md`
+
+**详细规则**：参考 `openspec/DOCUMENTATION.md`
 
 ### 规则 5：提交格式
 - 格式：`feat(模块): 中文内容`
@@ -107,6 +107,7 @@ grep -r "using-superpowers" .opencode/skills/
 | "加个 emoji 更清晰" | 禁止，用文本 |
 | "用户肯定想要推荐方案" | 必须等待用户明确选择 |
 | "我帮用户选个最好的" | 用户必须自己决定 |
+| "不用查 DOCUMENTATION.md" | 创建文档前必须确认位置 |
 
 ---
 
@@ -129,7 +130,12 @@ grep -r "using-superpowers" .opencode/skills/
 | 需求 | 文档位置 |
 |------|---------|
 | 项目上下文、技术栈 | `openspec/project.md` |
-| Java 开发规范 | `openspec/project.md` § 后端开发规范 |
 | 文档组织规范 | `openspec/DOCUMENTATION.md` |
 | OpenSpec 完整流程 | `openspec/AGENTS.md` |
 | 规范变更历史 | `openspec/CHANGELOG.md` |
+| 项目特定规范 | `openspec/specs/*/spec.md` |
+
+## 代码索引
+
+如果项目配置了代码索引工具（如 GitNexus），详见对应的 skill 文档：
+- `gitnexus-context` - GitNexus 代码知识图谱
