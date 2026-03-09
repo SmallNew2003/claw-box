@@ -24,6 +24,19 @@
 - 实现完成后归档到 `changes/archive/`
 - 不包含实现细节、代码示例、操作手册
 
+**project.md 内容规范**：
+- [正确] 项目定位、目标、技术栈列表、架构模式概述、领域上下文、职责边界、外部依赖、重要约束
+- [错误] 详细的开发规范（应放在 `specs/development-standards/spec.md`）
+- [错误] 详细的数据库设计规范（应放在 `specs/database-design-standards/spec.md`）
+- [错误] 代码示例和最佳实践（应放在 `specs/` 或 `docs/`）
+
+**创建或修改文档前必须检查**：
+1. 这是项目上下文吗？→ `openspec/project.md`
+2. 这是开发规范吗？→ `openspec/specs/development-standards/spec.md`
+3. 这是数据库设计规范吗？→ `openspec/specs/database-design-standards/spec.md`
+4. 这是功能需求吗？→ `openspec/specs/<capability>/spec.md`
+5. 这是技术设计吗？→ `openspec/changes/<change-id>/design.md`
+
 ### docs/ - 设计与文档（How to build）
 
 **用途**：技术设计、实现指南、用户文档

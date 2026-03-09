@@ -15,10 +15,33 @@ description: Use when analyzing code impact, tracing dependencies, or understand
 
 ## 快速开始
 
-### 1. 检查是否可用
+### 1. 使用前自动检查
+
+**每次使用 GitNexus 工具前，必须先检查索引状态**：
 
 ```bash
 npx gitnexus status
+```
+
+根据输出采取行动：
+
+| 状态 | 输出示例 | 行动 |
+|------|---------|------|
+| 索引最新 | `Up to date` | 直接使用工具 |
+| 轻微过期 | `X files changed (< 10)` | 提示用户但继续使用 |
+| 中度过期 | `X files changed (10-50)` | 建议用户运行 `npx gitnexus analyze` |
+| 严重过期 | `X files changed (> 50)` 或 `Repository not indexed` | 必须先运行 `npx gitnexus analyze` |
+
+**检查逻辑**：
+```
+1. 运行 npx gitnexus status
+2. 如果输出包含 "not indexed" → 必须先索引
+3. 如果输出包含 "X files changed":
+   - 提取数字 X
+   - X > 50 → 告知用户："索引严重过期（X 个文件未索引），必须先运行 npx gitnexus analyze"
+   - X > 10 → 告知用户："索引过期（X 个文件未索引），建议运行 npx gitnexus analyze 以获得准确结果"
+   - X <= 10 → 提示："索引略有过期（X 个文件未索引），结果可能不完全准确"
+4. 继续使用工具
 ```
 
 ### 2. 如果未安装
@@ -109,7 +132,7 @@ npx gitnexus status
 npx gitnexus list
 
 # 重新索引
-npx gitnexus analyze --force --skip-embeddings
+npx gitnexus analyze --force
 ```
 
 多仓库场景需指定 repo 参数：
