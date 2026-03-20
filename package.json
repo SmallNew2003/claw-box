@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "tauri dev",
     "build": "tauri build",
-    "openspec:preflight": "node --experimental-strip-types tools/openspec-preflight.ts"
+    "openspec:preflight": "node --experimental-strip-types tools/openspec-preflight.ts",
+    "test:ui": "node --test --experimental-strip-types --experimental-specifier-resolution=node src-ui/api/*.test.ts src-ui/stores/*.test.ts"
   },
   "dependencies": {
     "react": "^18.3.1",

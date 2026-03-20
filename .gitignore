@@ -1,1 +1,32 @@
 .opencode/dispatch/
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+
+# Logs / temp
+*.log
+*.tmp
+*.swp
+
+# Environment files
+.env
+.env.*
+!.env.example
+
+# Node / frontend build artifacts
+node_modules/
+dist/
+build/
+coverage/
+.turbo/
+.next/
+
+# Rust / Cargo build artifacts
+target/
+backend/target/
+
+# TypeScript incremental cache
+*.tsbuildinfo

@@ -5,6 +5,7 @@
     "lib": ["ES2022", "DOM"],
     "jsx": "react-jsx",
     "strict": true,
+    "allowImportingTsExtensions": true,
     "moduleResolution": "Bundler",
     "allowJs": false,
     "skipLibCheck": true,
@@ -15,5 +16,5 @@
       "@shared/*": ["src/shared/*"]
     }
   },
-  "include": ["src", "electron.vite.config.ts"]
+  "include": ["src-ui", "src/shared", "tools", "electron.vite.config.ts"]
 }
