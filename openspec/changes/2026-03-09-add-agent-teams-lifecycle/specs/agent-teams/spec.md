@@ -2,49 +2,6 @@
 
 ## ADDED Requirements
 
-### Requirement: 团队生命周期管理
-系统 SHALL 提供完整的团队生命周期管理功能。
-
-#### Scenario: 创建团队草稿
-- **WHEN** 用户创建新团队
-- **THEN** 系统创建 draft 状态的团队
-- **AND** 团队包含基本信息（名称、模式）
-
-#### Scenario: 配置团队
-- **WHEN** 用户为 draft 团队添加角色和配置
-- **THEN** 系统更新团队配置
-- **AND** 配置完成后团队状态变为 ready
-
-#### Scenario: 激活团队
-- **WHEN** 用户激活 ready 状态的团队
-- **THEN** 系统将团队状态变为 running
-- **AND** 记录团队启动时间
-
-#### Scenario: 暂停团队
-- **WHEN** 用户暂停 running 状态的团队
-- **THEN** 系统将团队状态变为 paused
-- **AND** 保留团队当前执行状态
-
-#### Scenario: 恢复团队
-- **WHEN** 用户恢复 paused 状态的团队
-- **THEN** 系统将团队状态变为 running
-- **AND** 从暂停点继续执行
-
-#### Scenario: 停止团队
-- **WHEN** 用户停止 running 状态的团队
-- **THEN** 系统将团队状态变为 completed 或 failed
-- **AND** 记录团队完成时间
-
-#### Scenario: 归档团队
-- **WHEN** 用户归档 completed 或 failed 状态的团队
-- **THEN** 系统执行归档流程（知识提升、工作区清理）
-- **AND** 团队状态变为 archived
-
-#### Scenario: 删除团队
-- **WHEN** 用户删除 draft 或 archived 状态的团队
-- **THEN** 系统删除团队及相关数据
-- **AND** 无法删除其他状态的团队
-
 ### Requirement: 团队状态可视化
 系统 SHALL 展示团队的当前状态和历史状态转换。
 
@@ -141,6 +98,49 @@
 - **AND** 保留失败日志供调试
 
 ## MODIFIED Requirements
+
+### Requirement: 团队生命周期管理
+系统 SHALL 支持创建、配置、激活、暂停、恢复、停止、归档与删除团队。
+
+#### Scenario: 创建团队草稿
+- **WHEN** 用户创建新团队
+- **THEN** 系统创建 `draft` 状态的团队
+- **AND** 团队包含基本信息（名称、模式）
+
+#### Scenario: 配置团队
+- **WHEN** 用户为 `draft` 团队添加角色和配置
+- **THEN** 系统更新团队配置
+- **AND** 配置完成后团队状态变为 `ready`
+
+#### Scenario: 激活团队
+- **WHEN** 用户激活 `ready` 状态的团队
+- **THEN** 系统将团队状态变为 `running`
+- **AND** 记录团队启动时间
+
+#### Scenario: 暂停团队
+- **WHEN** 用户暂停 `running` 状态的团队
+- **THEN** 系统将团队状态变为 `paused`
+- **AND** 保留团队当前执行状态
+
+#### Scenario: 恢复团队
+- **WHEN** 用户恢复 `paused` 状态的团队
+- **THEN** 系统将团队状态变为 `running`
+- **AND** 从暂停点继续执行
+
+#### Scenario: 停止团队
+- **WHEN** 用户停止 `running` 状态的团队
+- **THEN** 系统将团队状态变为 `completed` 或 `failed`
+- **AND** 记录团队完成时间
+
+#### Scenario: 归档团队
+- **WHEN** 用户归档 `completed` 或 `failed` 状态的团队
+- **THEN** 系统执行归档流程（知识提升、工作区清理）
+- **AND** 团队状态变为 `archived`
+
+#### Scenario: 删除团队
+- **WHEN** 用户删除 `draft` 或 `archived` 状态的团队
+- **THEN** 系统删除团队及相关数据
+- **AND** 无法删除其他状态的团队
 
 ### Requirement: 任务分派可视化
 系统 SHALL 显示团队任务分派与执行进度，并支持实时消息流展示。
