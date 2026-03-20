@@ -1,5 +1,8 @@
 # MCP 集成
 
+## Purpose
+定义 MCP 连接、工具发现与工具调用的能力边界，确保外部能力接入过程具备统一连接管理、调用审计与可靠性保障。
+
 ## Requirements
 
 ### Requirement: MCP 连接管理

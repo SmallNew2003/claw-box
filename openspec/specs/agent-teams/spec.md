@@ -1,5 +1,8 @@
 # Agent Teams
 
+## Purpose
+定义 Agent Teams 的团队编排、动态任务分配与协作约束，确保多 Agent 协同执行过程可观测、可控且具备稳定的生命周期管理。
+
 ## Requirements
 
 ### Requirement: Teams 状态展示
