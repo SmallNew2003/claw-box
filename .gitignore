@@ -30,3 +30,6 @@ backend/target/
 
 # TypeScript incremental cache
 *.tsbuildinfo
+
+# Local GitNexus worktree index
+/.gitnexus/
