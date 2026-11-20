@@ -14,6 +14,10 @@ detect_changes({scope: "all"})
 detect_changes({scope: "staged"})
 ```
 
+在 linked worktree 中，先运行 `bash scripts/gitnexus/worktree.sh init`，然后在 MCP 调用中把 `repo` 和 `worktree` 都设为当前 worktree 的绝对路径。可以用 `git rev-parse --show-toplevel` 确认路径。
+
+运行 `bash scripts/install-gitnexus-hooks.sh` 安装共享的提交检查。出现「覆盖未确认」时按日志复核暂存文件。提交后索引会在实际提交的工作树刷新。
+
 ## 输出示例
 
 ```
